@@ -11,10 +11,10 @@
     <div class="relative min-h-screen flex items-center justify-center px-6 py-10">
 
         <!-- círculo inferior izquierdo -->
-        <div class="absolute bottom-0 left-0 w-48 h-48 md:w-64 md:h-64 bg-blue-700 rounded-tr-full"></div>
+        <div class="absolute bottom-0 left-0 w-48 h-48 md:w-64 md:h-64 bg-[#d90000] rounded-tr-full"></div>
 
         <!-- círculo derecho -->
-        <div class="absolute top-0 right-0 w-[42%] h-full bg-blue-700 rounded-l-full hidden lg:block"></div>
+        <div class="absolute top-0 right-0 w-[42%] h-full bg-[#d90000] rounded-l-full hidden lg:block"></div>
 
         <div class="relative z-10 w-full max-w-7xl grid grid-cols-1 lg:grid-cols-2 items-center gap-10">
 
@@ -22,20 +22,18 @@
             <div class="flex justify-center">
                 <div class="w-full max-w-xl">
                     <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-8 text-center lg:text-left"
-                        style="font-family: Georgia, 'Times New Roman', serif;">
+                        style="font-family: arial;">
                         Cotiza tu servicio
                     </h1>
 
-                    <div class="bg-[#eceaea] rounded-2xl p-8 shadow-sm">
-                        <form action="#" method="POST" class="space-y-4">
+                <div class="bg-white rounded-2xl shadow-md p-8 border border-gray-200">                        <form action="#" method="POST" class="space-y-4">
                             @csrf
 
                             <div>
                                 <label class="block text-sm text-gray-700 mb-2">Tipo de servicio</label>
-                                <select name="tipo_servicio" class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <select name="tipo_servicio" class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-600 outline-none focus:ring-2 focus:ring-[#d90000]">>
                                     <option selected disabled>Elija una opción</option>
                                     <option value="traslado">Traslado</option>
-                                    <option value="emergencia">Emergencia</option>
                                     <option value="evento">Cobertura de evento</option>
                                 </select>
                             </div>
@@ -43,58 +41,63 @@
                             <div>
                                 <label class="block text-sm text-gray-700 mb-2">Nombre(s) del paciente</label>
                                 <input type="text" name="nombre" placeholder="Ej. Ana"
-                                    class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#d90000]">
                             </div>
 
-                            <div>
-                                <label class="block text-sm text-gray-700 mb-2">Apellido paterno del paciente</label>
-                                <input type="text" name="ap_paterno" placeholder="Ej. López"
-                                    class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-                            <div>
-                                <label class="block text-sm text-gray-700 mb-2">Apellido materno del paciente</label>
-                                <input type="text" name="ap_materno" placeholder="Ej. García"
-                                    class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
+                <div>
+                    <label class="block text-sm text-gray-700 mb-2">Apellido paterno del paciente</label>
+                    <input type="text" name="ap_paterno" placeholder="Ej. López"
+                    class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#d90000]">
+                </div>
+
+                <div>
+                    <label class="block text-sm text-gray-700 mb-2">Apellido materno del paciente</label>
+                    <input type="text" name="ap_materno" placeholder="Ej. García"
+                    class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#d90000]">
+                </div>
+
+            </div>
+
 
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                 <div>
                                     <label class="block text-sm text-gray-700 mb-2">Edad</label>
                                     <input type="number" name="edad" placeholder="Ej. 18"
-                                        class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#d90000]">
                                 </div>
 
                                 <div>
                                     <label class="block text-sm text-gray-700 mb-2">Peso</label>
                                     <input type="text" name="peso" placeholder="Ej. 45 kg"
-                                        class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#d90000]">
                                 </div>
 
                                 <div>
                                     <label class="block text-sm text-gray-700 mb-2">Altura</label>
                                     <input type="text" name="altura" placeholder="Ej. 1.65 m"
-                                        class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#d90000]">
                                 </div>
                             </div>
 
                             <div>
                                 <label class="block text-sm text-gray-700 mb-2">Fecha y hora del servicio solicitado</label>
                                 <input type="datetime-local" name="fecha_hora"
-                                    class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#d90000]">
                             </div>
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm text-gray-700 mb-2">Origen</label>
                                     <input type="text" name="origen"
-                                        class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#d90000]">
                                 </div>
 
                                 <div>
                                     <label class="block text-sm text-gray-700 mb-2">Destino</label>
                                     <input type="text" name="destino"
-                                        class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#d90000]">
                                 </div>
                             </div>
 
@@ -115,7 +118,7 @@
 
                             <div class="pt-4">
                                 <button type="submit"
-                                    class="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold py-3 rounded-xl transition">
+                                    class="w-full bg-[#d90000] hover:bg-red-800 text-white font-semibold py-3 rounded-xl transition">
                                     Solicitar cotización
                                 </button>
                             </div>

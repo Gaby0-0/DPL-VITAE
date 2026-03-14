@@ -17,7 +17,7 @@
                     <p class="text-sm text-gray-500 mt-2">Solicitudes registradas hoy</p>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-md p-6 border-l-8 border-[#7aa6c2]">
+                <div class="bg-white rounded-2xl shadow-md p-6 border-l-8 border-[#d90000]">
                     <p class="text-sm text-gray-500">Servicios activos</p>
                     <h4 class="text-4xl font-bold mt-2 text-[#7aa6c2]">12</h4>
                     <p class="text-sm text-gray-500 mt-2">Servicios en proceso</p>
@@ -29,7 +29,7 @@
                     <p class="text-sm text-gray-500 mt-2">Unidades listas para operar</p>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-md p-6 border-l-8 border-[#7aa6c2]">
+                <div class="bg-white rounded-2xl shadow-md p-6 border-l-8 border-[#d90000]">
                     <p class="text-sm text-gray-500">Pacientes registrados</p>
                     <h4 class="text-4xl font-bold mt-2 text-[#7aa6c2]">36</h4>
                     <p class="text-sm text-gray-500 mt-2">Ultimos registros</p>
