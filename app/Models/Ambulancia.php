@@ -8,6 +8,8 @@ class Ambulancia extends Model
 {
     protected $table = 'ambulancia';
     protected $primaryKey = 'id_ambulancia';
+    public $timestamps = false;
+
 
     protected $fillable = [
         'placa',

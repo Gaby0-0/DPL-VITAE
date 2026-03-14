@@ -8,6 +8,7 @@ class Insumo extends Model
 {
     protected $table = 'insumo';
     protected $primaryKey = 'id_insumo';
+    public $timestamps = false;
 
     protected $fillable = [
         'nombre_insumo',

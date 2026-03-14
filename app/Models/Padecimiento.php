@@ -8,6 +8,8 @@ class Padecimiento extends Model
 {
     protected $table = 'padecimiento';
     protected $primaryKey = 'id_padecimiento';
+    public $timestamps = false;
+
 
     protected $fillable = [
         'nombre_padecimiento',
