@@ -6,10 +6,13 @@ use App\Http\Controllers\InsumosController;
 use App\Http\Controllers\AmbulanciasController;
 use App\Http\Controllers\PadecimientosController;
 use App\Http\Controllers\ServiciosController;
+use App\Http\Controllers\TipoAmbulanciaController;
+use App\Http\Controllers\EmpresaController;
 
 //Ruta que irá por default cuando un cliente abra la pagina
 Route::get('/', function () {
-    return view('inicio');
+    $empresa = \App\Models\Empresa::first();
+    return view('public.inicio', compact('empresa'));
 });
 
 //FORM COTIZACION
@@ -32,7 +35,27 @@ Route::delete('/admin/personal/{id}', [PersonalController::class, 'destroy'])->n
 
 //CRUD AMBULANCIAS
 Route::get('/admin/ambulancias', [AmbulanciasController::class, 'index'])->name('ambulancias.index');
+Route::get('/admin/ambulancias/create', [AmbulanciasController::class, 'create'])->name('ambulancias.create');
+Route::post('/admin/ambulancias', [AmbulanciasController::class, 'store'])->name('ambulancias.store');
+Route::get('/admin/ambulancias/{id}/edit', [AmbulanciasController::class, 'edit'])->name('ambulancias.edit');
+Route::put('/admin/ambulancias/{id}', [AmbulanciasController::class, 'update'])->name('ambulancias.update');
+Route::delete('/admin/ambulancias/{id}', [AmbulanciasController::class, 'destroy'])->name('ambulancias.destroy');
 
+//CRUD TIPO AMBULANCIA
+Route::post('/admin/tipo-ambulancia', [TipoAmbulanciaController::class, 'store'])->name('tipo_ambulancia.store');
+Route::get('/admin/tipo-ambulancia/{id}/edit', [TipoAmbulanciaController::class, 'edit'])->name('tipo_ambulancia.edit');
+Route::put('/admin/tipo-ambulancia/{id}', [TipoAmbulanciaController::class, 'update'])->name('tipo_ambulancia.update');
+Route::delete('/admin/tipo-ambulancia/{id}', [TipoAmbulanciaController::class, 'destroy'])->name('tipo_ambulancia.destroy');
+
+//CRUD EMPRESA
+Route::get('/admin/empresa', [EmpresaController::class, 'index'])->name('empresa.index');
+Route::get('/admin/empresa/create', [EmpresaController::class, 'create'])->name('empresa.create');
+Route::post('/admin/empresa', [EmpresaController::class, 'store'])->name('empresa.store');
+Route::get('/admin/empresa/{id}/edit', [EmpresaController::class, 'edit'])->name('empresa.edit');
+Route::put('/admin/empresa/{id}', [EmpresaController::class, 'update'])->name('empresa.update');
+Route::delete('/admin/empresa/{id}', [EmpresaController::class, 'destroy'])->name('empresa.destroy');
+Route::get('/empresa/{id}/logo', [EmpresaController::class, 'logo'])->name('empresa.logo');
+Route::get('/empresa/{id}/imagen', [EmpresaController::class, 'imagen'])->name('empresa.imagen');
 
 //CRUD PADECIMIENTOS
 Route::get('/admin/padecimientos', [PadecimientosController::class, 'index'])->name('padecimientos.index');
