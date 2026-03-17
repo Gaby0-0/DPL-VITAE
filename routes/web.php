@@ -67,7 +67,7 @@ Route::post('/admin/servicios', [ServiciosController::class, 'store'])->name('se
 Route::get('/admin/servicios/{id}/edit', [ServiciosController::class, 'edit'])->name('servicios.edit');
 Route::put('/admin/servicios/{id}', [ServiciosController::class, 'update'])->name('servicios.update');
 Route::delete('/admin/servicios/{id}', [ServiciosController::class, 'delete'])->name('servicios.destroy');
-
+Route::get('/admin/servicios/{id}', [ServiciosController::class, 'show'])->name('servicios.show');
 
 //CRUD INSUMOS
 Route::get('/admin/insumos', [InsumosController::class, 'index'])->name('insumos.index');
