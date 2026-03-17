@@ -23,22 +23,27 @@
                         <span class="font-medium">Dashboard</span>
                     </a>
 
-                    <a href="/admin/cotizaciones" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-red-700 transition">
-                        <span class="text-xl">✚</span>
-                        <span class="font-medium">Cotizaciones</span>
+                    <a href="{{ route('empresa.index') }}" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-red-700 transition">
+                        <span class="text-xl">🏢</span>
+                        <span class="font-medium">Empresa</span>
                     </a>
 
                     <a href="#" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-red-700 transition">
                         <span class="text-xl">✚</span>
+                        <span class="font-medium">Cotizaciones</span>
+                    </a>
+
+                    <a href="{{ route('ambulancias.index') }}" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-red-700 transition">
+                        <span class="text-xl">✚</span>
                         <span class="font-medium">Ambulancias</span>
                     </a>
 
-                    <a href="/admin/personal" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-red-700 transition">
+                    <a href="#" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-red-700 transition">
                         <span class="text-xl">✚</span>
                         <span class="font-medium">Personal</span>
                     </a>
 
-                    <a href="/admin/insumos" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-red-700 transition">
+                    <a href="#" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-red-700 transition">
                         <span class="text-xl">✚</span>
                         <span class="font-medium">Insumos</span>
                     </a>
@@ -83,7 +88,6 @@
             </main>
         </div>
     </div>
-
 
 </body>
 </html>
