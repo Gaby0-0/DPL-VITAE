@@ -5,6 +5,7 @@ use App\Http\Controllers\PersonalController;
 use App\Http\Controllers\InsumosController;
 use App\Http\Controllers\AmbulanciasController;
 use App\Http\Controllers\PadecimientosController;
+use App\Http\Controllers\ServiciosController;
 
 //Ruta que irá por default cuando un cliente abra la pagina
 Route::get('/', function () {
@@ -37,6 +38,12 @@ Route::get('/admin/ambulancias', [AmbulanciasController::class, 'index'])->name(
 Route::get('/admin/padecimientos', [PadecimientosController::class, 'index'])->name('padecimientos.index');
 
 //CRUD SERVICIOS
+Route::get('/admin/servicios', [ServiciosController::class, 'index'])->name('servicios.index');
+Route::get('/admin/servicios/create', [ServiciosController::class, 'create'])->name('servicios.create');
+Route::post('/admin/servicios', [ServiciosController::class, 'store'])->name('servicios.store');
+Route::get('/admin/servicios/{id}/edit', [ServiciosController::class, 'edit'])->name('servicios.edit');
+Route::put('/admin/servicios/{id}', [ServiciosController::class, 'update'])->name('servicios.update');
+Route::delete('/admin/servicios/{id}', [ServiciosController::class, 'delete'])->name('servicios.destroy');
 
 
 //CRUD INSUMOS

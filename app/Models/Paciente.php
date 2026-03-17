@@ -16,20 +16,14 @@ class Paciente extends Model
         'oxigeno',
         'fecha_nacimiento',
         'sexo',
-        'peso',
-        'id_servicio',
-        'id_direccion'
+        'peso'
     ];
 
-    public function servicio()
+    public function Traslado()
     {
-        return $this->belongsTo(Servicio::class,'id_servicio');
+        return $this->hasOne(Traslado::class,'id_servicio');
     }
 
-    public function direccion()
-    {
-        return $this->belongsTo(Direccion::class,'id_direccion');
-    }
 
     public function padecimientos()
     {
