@@ -13,10 +13,10 @@
         <span class="text-gray-800 font-medium">Detalle #{{ $servicio->id_servicio }}</span>
     </div>
 
-    {{-- Tarjeta principal --}}
+    {{-- Tarjeta --}}
     <div class="bg-white rounded-2xl shadow-md overflow-hidden">
 
-        {{-- Encabezado con estado --}}
+        {{-- Encabezado --}}
         <div class="bg-[#d90000] px-8 py-5 flex items-center justify-between">
             <div>
                 <h3 class="text-white text-xl font-semibold">Servicio #{{ $servicio->id_servicio }}</h3>
@@ -39,23 +39,20 @@
             </span>
         </div>
 
-        {{-- Datos del servicio --}}
+        {{-- Datos --}}
         <div class="px-8 py-8">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                {{-- Ambulancia --}}
                 <div class="bg-[#e9e9e9] rounded-2xl px-5 py-4">
                     <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Ambulancia</p>
                     <p class="text-gray-800 font-semibold text-base">{{ $servicio->placa }}</p>
                 </div>
 
-                {{-- Cliente --}}
                 <div class="bg-[#e9e9e9] rounded-2xl px-5 py-4">
                     <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Cliente</p>
                     <p class="text-gray-800 font-semibold text-base">#{{ $servicio->id_cliente }}</p>
                 </div>
 
-                {{-- Fecha y hora --}}
                 <div class="bg-[#e9e9e9] rounded-2xl px-5 py-4">
                     <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Fecha y hora</p>
                     <p class="text-gray-800 font-semibold text-base">
@@ -63,7 +60,6 @@
                     </p>
                 </div>
 
-                {{-- Hora de salida --}}
                 <div class="bg-[#e9e9e9] rounded-2xl px-5 py-4">
                     <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Hora de salida</p>
                     <p class="text-gray-800 font-semibold text-base">
@@ -71,7 +67,6 @@
                     </p>
                 </div>
 
-                {{-- Costo total --}}
                 <div class="bg-[#e9e9e9] rounded-2xl px-5 py-4 md:col-span-2">
                     <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Costo total</p>
                     <p class="text-[#d90000] font-bold text-2xl">
@@ -79,7 +74,6 @@
                     </p>
                 </div>
 
-                {{-- Observaciones --}}
                 @if($servicio->observaciones)
                 <div class="bg-[#e9e9e9] rounded-2xl px-5 py-4 md:col-span-2">
                     <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Observaciones</p>
@@ -90,7 +84,7 @@
             </div>
         </div>
 
-        {{-- Pie con acciones --}}
+        {{-- Acciones --}} 
         <div class="border-t border-gray-100 px-8 py-5 flex items-center justify-between">
             <a href="{{ route('servicios.index') }}"
                class="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-800 transition">

@@ -13,10 +13,10 @@
         <span class="text-gray-800 font-medium">Nuevo</span>
     </div>
 
-    {{-- Tarjeta del formulario --}}
+    {{-- Formulario --}}
     <div class="bg-white rounded-2xl shadow-md overflow-hidden">
 
-        {{-- Encabezado rojo --}}
+        {{-- Encabezado --}}
         <div class="bg-[#d90000] px-8 py-5">
             <h3 class="text-white text-xl font-semibold">Registrar servicio</h3>
             <p class="text-red-200 text-sm mt-1">Completa los campos para crear un nuevo servicio.</p>
@@ -26,7 +26,7 @@
         <form action="{{ route('servicios.store') }}" method="POST" class="px-8 py-8 space-y-6">
             @csrf
 
-            {{-- Errores generales --}}
+            {{-- Errores --}}
             @if($errors->any())
                 <div class="bg-red-50 border border-red-200 text-red-700 rounded-2xl px-5 py-4 text-sm space-y-1">
                     @foreach($errors->all() as $error)
@@ -35,7 +35,7 @@
                 </div>
             @endif
 
-            {{-- Fila 1: Ambulancia / Cliente --}}
+            {{-- Campos --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Ambulancia <span class="text-[#d90000]">*</span></label>
@@ -72,7 +72,7 @@
                 </div>
             </div>
 
-            {{-- Fila 2: Fecha/hora / Hora salida --}}
+            {{-- Campos --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Fecha y hora <span class="text-[#d90000]">*</span></label>
@@ -93,7 +93,7 @@
                 </div>
             </div>
 
-            {{-- Fila 3: Costo / Estado --}}
+            {{-- Campos --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Costo total <span class="text-[#d90000]">*</span></label>

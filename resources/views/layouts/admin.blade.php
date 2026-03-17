@@ -19,37 +19,37 @@
 
                 <nav class="px-6 py-8 space-y-3">
                     <a href="/admin/dashboard" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-red-700 transition">
-                        <span class="text-xl">jj</span>
+                        <span class="text-xl"></span>
                         <span class="font-medium">Dashboard</span>
                     </a>
 
                     <a href="{{ route('empresa.index') }}" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-red-700 transition">
-                        <span class="text-xl">🏢</span>
+                        <span class="text-xl"></span>
                         <span class="font-medium">Empresa</span>
                     </a>
 
-                    <a href="#" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-red-700 transition">
-                        <span class="text-xl">✚</span>
-                        <span class="font-medium">Cotizaciones</span>
+                    <a href="{{ route('servicios.index') }}" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-red-700 transition">
+                        <span class="text-xl"></span>
+                        <span class="font-medium">Servicios</span>
                     </a>
 
                     <a href="{{ route('ambulancias.index') }}" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-red-700 transition">
-                        <span class="text-xl">✚</span>
+                        <span class="text-xl"></span>
                         <span class="font-medium">Ambulancias</span>
                     </a>
 
-                    <a href="#" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-red-700 transition">
-                        <span class="text-xl">✚</span>
+                    <a href="{{ route('personal.index') }}" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-red-700 transition">
+                        <span class="text-xl"></span>
                         <span class="font-medium">Personal</span>
                     </a>
 
-                    <a href="#" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-red-700 transition">
-                        <span class="text-xl">✚</span>
+                    <a href="{{ route('insumos.index') }}" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-red-700 transition">
+                        <span class="text-xl"></span>
                         <span class="font-medium">Insumos</span>
                     </a>
 
-                    <a href="#" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-red-700 transition">
-                        <span class="text-xl">♡</span>
+                    <a href="{{ route('padecimientos.index') }}" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-red-700 transition">
+                        <span class="text-xl"></span>
                         <span class="font-medium">Padecimientos</span>
                     </a>
                 </nav>

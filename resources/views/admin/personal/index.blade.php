@@ -25,18 +25,19 @@
     @endif
 
     <div class="bg-white rounded-2xl shadow-md overflow-hidden">
-        <table class="w-full text-left">
-            <thead class="bg-[#d90000] text-white">
-                <tr>
-                    <th class="px-6 py-4">ID</th>
-                    <th class="px-6 py-4">Nombre</th>
-                    <th class="px-6 py-4">Correo</th>
-                    <th class="px-6 py-4">Tipo</th>
-                    <th class="px-6 py-4">Salario/hora</th>
-                    <th class="px-6 py-4">Acciones</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
+        <div class="max-h-[500px] overflow-y-auto">
+            <table class="w-full text-left">
+                <thead class="bg-[#d90000] text-white sticky top-0 z-10">
+                    <tr>
+                        <th class="px-6 py-4">ID</th>
+                        <th class="px-6 py-4">Nombre</th>
+                        <th class="px-6 py-4">Correo</th>
+                        <th class="px-6 py-4">Tipo</th>
+                        <th class="px-6 py-4">Salario/hora</th>
+                        <th class="px-6 py-4">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
                 @forelse($personal as $persona)
                     <tr>
                         <td class="px-6 py-4">{{ $persona->id_usuario }}</td>
@@ -67,7 +68,8 @@
                         </td>
                     </tr>
                 @endforelse
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     </div>
 @endsection

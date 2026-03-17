@@ -6,7 +6,7 @@
 @section('content')
 <div class="space-y-8">
 
-    {{-- Mensajes flash --}}
+    {{-- Alertas --}}
     @if(session('success'))
         <div class="bg-green-100 border-l-4 border-green-500 text-green-800 px-5 py-4 rounded-2xl text-sm font-medium">
             {{ session('success') }}
@@ -18,7 +18,7 @@
         </div>
     @endif
 
-    {{-- Encabezado y botón nuevo --}}
+    {{-- Encabezado --}}
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
             <h3 class="text-2xl font-semibold text-gray-800">Listado de servicios</h3>
@@ -45,20 +45,21 @@
 
     {{-- Tabla --}}
     <div class="bg-white rounded-2xl shadow-md overflow-hidden">
-        <table class="w-full text-left" id="tablaServicios">
-            <thead class="bg-[#d90000] text-white">
-                <tr>
-                    <th class="px-6 py-4 text-sm font-semibold">#</th>
-                    <th class="px-6 py-4 text-sm font-semibold">Ambulancia</th>
-                    <th class="px-6 py-4 text-sm font-semibold">Cliente</th>
-                    <th class="px-6 py-4 text-sm font-semibold">Fecha y hora</th>
-                    <th class="px-6 py-4 text-sm font-semibold">Hora salida</th>
-                    <th class="px-6 py-4 text-sm font-semibold">Costo total</th>
-                    <th class="px-6 py-4 text-sm font-semibold">Estado</th>
-                    <th class="px-6 py-4 text-sm font-semibold">Acciones</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
+        <div class="max-h-[500px] overflow-y-auto">
+            <table class="w-full text-left" id="tablaServicios">
+                <thead class="bg-[#d90000] text-white sticky top-0 z-10">
+                    <tr>
+                        <th class="px-6 py-4 text-sm font-semibold">#</th>
+                        <th class="px-6 py-4 text-sm font-semibold">Ambulancia</th>
+                        <th class="px-6 py-4 text-sm font-semibold">Cliente</th>
+                        <th class="px-6 py-4 text-sm font-semibold">Fecha y hora</th>
+                        <th class="px-6 py-4 text-sm font-semibold">Hora salida</th>
+                        <th class="px-6 py-4 text-sm font-semibold">Costo total</th>
+                        <th class="px-6 py-4 text-sm font-semibold">Estado</th>
+                        <th class="px-6 py-4 text-sm font-semibold">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
                 @forelse($servicios as $servicio)
                 <tr class="hover:bg-gray-50 transition">
                     <td class="px-6 py-4 text-gray-500 text-sm">{{ $servicio->id_servicio }}</td>
@@ -138,13 +139,14 @@
                     </td>
                 </tr>
                 @endforelse
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     </div>
 
 </div>
 
-{{-- Búsqueda en tabla --}}
+{{-- Buscador --}}
 <script>
     document.getElementById('buscador').addEventListener('input', function () {
         const filtro = this.value.toLowerCase();
