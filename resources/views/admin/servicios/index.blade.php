@@ -49,12 +49,10 @@
             <table class="w-full text-left" id="tablaServicios">
                 <thead class="bg-[#d90000] text-white sticky top-0 z-10">
                     <tr>
-                        <th class="px-6 py-4 text-sm font-semibold">#</th>
-                        <th class="px-6 py-4 text-sm font-semibold">Ambulancia</th>
+                        <th class="px-6 py-4 text-sm font-semibold">Operador</th>
                         <th class="px-6 py-4 text-sm font-semibold">Cliente</th>
                         <th class="px-6 py-4 text-sm font-semibold">Fecha y hora</th>
-                        <th class="px-6 py-4 text-sm font-semibold">Hora salida</th>
-                        <th class="px-6 py-4 text-sm font-semibold">Costo total</th>
+                        <th class="px-6 py-4 text-sm font-semibold">Costo</th>
                         <th class="px-6 py-4 text-sm font-semibold">Estado</th>
                         <th class="px-6 py-4 text-sm font-semibold">Acciones</th>
                     </tr>
@@ -62,18 +60,18 @@
                 <tbody class="divide-y divide-gray-200">
                 @forelse($servicios as $servicio)
                 <tr class="hover:bg-gray-50 transition">
-                    <td class="px-6 py-4 text-gray-500 text-sm">{{ $servicio->id_servicio }}</td>
+                    <td class="px-6 py-4 font-medium text-gray-800">
+                        {{ $servicio->ambulancia->operador->user->nombre }}
+                        {{ $servicio->ambulancia->operador->user->ap_paterno }}</td>
 
-                    <td class="px-6 py-4 font-medium text-gray-800">{{ $servicio->placa }}</td>
-
-                    <td class="px-6 py-4 text-gray-700">{{ $servicio->id_cliente }}</td>
-
-                    <td class="px-6 py-4 text-gray-700 text-sm">
-                        {{ \Carbon\Carbon::parse($servicio->fecha_hora)->format('d/m/Y H:i') }}
+                    <td class="px-6 py-4 text-gray-700">
+                        {{ $servicio->cliente->user->nombre }}
+                        {{ $servicio->cliente->user->ap_paterno }}
+                        {{ $servicio->cliente->user->ap_materno }}
                     </td>
 
                     <td class="px-6 py-4 text-gray-700 text-sm">
-                        {{ $servicio->hora_salida ?? '—' }}
+                        {{ \Carbon\Carbon::parse($servicio->fecha_hora)->format('d/m/Y H:i') }}
                     </td>
 
                     <td class="px-6 py-4 font-semibold text-gray-800">
