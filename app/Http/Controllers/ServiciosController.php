@@ -12,18 +12,10 @@ class ServiciosController extends Controller
 {
     public function index()
     {
-        $servicios = Servicio::join('ambulancia', 'servicio.id_ambulancia', '=', 'ambulancia.id_ambulancia')
-            ->join('cliente', 'servicio.id_cliente', '=', 'cliente.id_usuario')
-            ->select(
-                'servicio.id_servicio',
-                'servicio.costo_total',
-                'servicio.estado',
-                'servicio.fecha_hora',
-                'servicio.hora_salida',
-                'servicio.observaciones',
-                'ambulancia.placa',
-                'cliente.id_usuario'
-            )
+        $servicios = Servicio::with([
+            'cliente.user',
+            'ambulancia.operador.user'
+        ])
             ->orderBy('servicio.fecha_hora', 'desc')
             ->get();
 
@@ -31,7 +23,7 @@ class ServiciosController extends Controller
     }
 
     public function create()
-    {
+    { //esto es más que nada para los clientes
         $ambulancias = Ambulancia::all();
         $clientes = Cliente::all();
 
@@ -72,17 +64,13 @@ class ServiciosController extends Controller
         }
     }
 
-    public function show($id)
-    {
-        $servicio = Servicio::join('ambulancia', 'servicio.id_ambulancia', '=', 'ambulancia.id_ambulancia')
-            ->join('cliente', 'servicio.id_usuario', '=', 'cliente.id_usuario')
-            ->select(
-                'servicio.*',
-                'ambulancia.placa',
-                'cliente.id_usuario'
-            )
-            ->where('servicio.id_servicio', $id)
-            ->firstOrFail();
+    public function show($id){
+        $servicio = Servicio::with([
+        'cliente.user',
+        'ambulancia.tipoAmbulancia',
+        'ambulancia.operador.user',
+        'traslados.paciente.padecimientos'
+    ])->findOrFail($id);
 
         return view('admin.servicios.show', compact('servicio'));
     }
