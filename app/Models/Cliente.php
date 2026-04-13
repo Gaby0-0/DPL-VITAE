@@ -15,9 +15,9 @@ class Cliente extends Model
         'id_usuario'
     ];
 
-    public function usuario()
+    public function user()
     {
-        return $this->belongsTo(User::class,'id_usuario');
+        return $this->belongsTo(User::class,'id_usuario', 'id_usuario');
     }
 
     public function servicios()
