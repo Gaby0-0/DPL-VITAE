@@ -71,7 +71,7 @@ class Cotizacion extends Model
         do {
             $guia = 'COT-' . date('Y') . '-' . strtoupper(substr(uniqid(), -6));
         } while (self::where('numero_guia', $guia)->exists());
-
+    
         return $guia;
     }
 
