@@ -16,7 +16,10 @@ class CotizacionController extends Controller
         $user = auth()->user();
         $empresa = Empresa::first();
         $tiposAmbulancia = \App\Models\TipoAmbulancia::orderByDesc('costo_base')->get();
-        return view('cotizaciones.create', compact('empresa', 'tiposAmbulancia', 'user'));
+        $tiposDisponibles = \App\Models\TipoAmbulancia::whereHas('ambulancias', function ($q) {
+                $q->where('estado', 'Disponible');
+            })->orderByDesc('costo_base')->get();
+        return view('cotizaciones.create', compact('empresa', 'tiposAmbulancia', 'tiposDisponibles', 'user'));
     }
 
     public function store(Request $request)

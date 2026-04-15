@@ -9,12 +9,22 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label">Tipo</label>
-                        <input type="text" name="tipo" class="form-control @error('tipo') is-invalid @enderror" value="{{ old('tipo') }}">
+                        <select name="tipo" class="form-select @error('tipo') is-invalid @enderror">
+                            <option value="">-- Seleccionar --</option>
+                            @foreach(['Traslado', 'Evento', 'Emergencia', 'Otro'] as $tipo)
+                            <option value="{{ $tipo }}" {{ old('tipo') == $tipo ? 'selected' : '' }}>{{ $tipo }}</option>
+                            @endforeach
+                        </select>
                         @error('tipo')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Estado <span class="text-danger">*</span></label>
-                        <input type="text" name="estado" class="form-control @error('estado') is-invalid @enderror" value="{{ old('estado') }}" required>
+                        <select name="estado" class="form-select @error('estado') is-invalid @enderror" required>
+                            <option value="">-- Seleccionar --</option>
+                            @foreach(['Activo', 'Finalizado', 'Cancelado'] as $estado)
+                            <option value="{{ $estado }}" {{ old('estado') == $estado ? 'selected' : '' }}>{{ $estado }}</option>
+                            @endforeach
+                        </select>
                         @error('estado')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-6">

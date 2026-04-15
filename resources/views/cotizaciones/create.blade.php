@@ -28,8 +28,10 @@
         }
         .tipo-card:hover { border-color: #696cff; background: #f0f0ff; }
         .tipo-card.selected { border-color: #696cff; background: #ededff; }
-        .tipo-card.premium { border-color: #ffd700; background: #fffbea; }
-        .tipo-card.premium.selected { border-color: #f59e0b; background: #fef3c7; }
+        .tipo-card.premium { border: 2px solid #e0e0e0; border-radius: 12px; cursor: pointer;
+            transition: all .2s; padding: 1rem; }
+        .tipo-card.premium.selected { border: 2px solid #e0e0e0; border-radius: 12px; cursor: pointer;
+            transition: all .2s; padding: 1rem; }
         .premium-badge {
             background: linear-gradient(135deg, #f59e0b, #ffd700);
             color: #000; font-size: .7rem; font-weight: 700;
@@ -201,68 +203,51 @@
 
                         {{-- traslado o emergencia --}}
                         <div id="wrap-amb-fija" class="d-none mb-4">
-                            <div class="alert alert-warning d-flex align-items-start gap-3 mb-3">
-                                <i class="bx bx-ambulance fs-4 mt-1"></i>
-                                <div>
-                                    <strong>Este tipo de servicio requiere ambulancia de mayor nivel.</strong><br>
-                                    <span class="small">Para traslados y emergencias médicas se asigna la unidad con mejor equipamiento para garantizar la seguridad del paciente.</span>
+                            @php $tiposFijos = $tipoMaxCosto ? $tiposDisponibles->where('id_tipo_ambulancia', $tipoMaxCosto->id_tipo_ambulancia) : collect(); @endphp
+                            @if($tiposFijos->isNotEmpty())
+                            <div class="row g-2" id="grid-amb-fija">
+                                @foreach($tiposFijos as $tipo)
+                                <div class="col-md-6">
+                                    <div class="tipo-card {{ old('tipo_ambulancia_preferida') == $tipo->nombre_tipo ? 'selected' : '' }}"
+                                         onclick="seleccionarTipo('{{ $tipo->nombre_tipo }}', {{ (float)$tipo->costo_base }}, this)">
+                                        <strong class="fs-6">{{ $tipo->nombre_tipo }}</strong>
+                                        @if($tipo->descripcion)
+                                        <p class="text-muted small mb-0 mt-1">{{ $tipo->descripcion }}</p>
+                                        @endif
+                                    </div>
                                 </div>
+                                @endforeach
                             </div>
-                            @if($tipoMaxCosto)
-                            <div class="tipo-card premium selected">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <span class="premium-badge me-2">★ RECOMENDADA</span>
-                                        <strong class="fs-5">{{ $tipoMaxCosto->nombre_tipo }}</strong>
-                                    </div>
-                                    <div class="text-end">
-                                        <div class="fs-4 fw-bold text-warning">${{ number_format($tipoMaxCosto->costo_base, 2) }}</div>
-                                        <small class="text-muted">costo base MXN</small>
-                                    </div>
-                                </div>
-                                @if($tipoMaxCosto->descripcion)
-                                <p class="text-muted small mb-0 mt-2">{{ $tipoMaxCosto->descripcion }}</p>
-                                @endif
-                                <div class="mt-2 d-flex gap-2 flex-wrap">
-                                    <span class="badge bg-success"><i class="bx bx-check me-1"></i>Equipamiento completo</span>
-                                    <span class="badge bg-primary"><i class="bx bx-user me-1"></i>Mínimo 2 paramédicos</span>
-                                    <span class="badge bg-secondary"><i class="bx bx-user-check me-1"></i>Operador incluido</span>
-                                </div>
+                            @else
+                            <div class="alert alert-info small">
+                                <i class="bx bx-info-circle me-1"></i>
+                                No hay unidades disponibles en este momento. Nuestro equipo asignará la unidad adecuada al confirmar.
                             </div>
                             @endif
                         </div>
 
                         {{-- evento u otro --}}
                         <div id="wrap-amb-eleccion" class="d-none mb-4">
-                            <p class="text-muted small mb-3">Selecciona el tipo de ambulancia que se adapte mejor a tu evento. El precio final incluye paramédicos y equipo.</p>
-                            <div class="row g-3" id="grid-tipos">
-                                @foreach($tiposAmbulancia as $i => $tipo)
+                            @if($tiposDisponibles->isNotEmpty())
+                            <div class="row g-2" id="grid-tipos">
+                                @foreach($tiposDisponibles as $tipo)
                                 <div class="col-md-6">
-                                    <div class="tipo-card {{ $i === 0 ? 'premium' : '' }} {{ old('tipo_ambulancia_preferida') == $tipo->nombre_tipo ? 'selected' : '' }}"
-                                         onclick="seleccionarTipo('{{ $tipo->nombre_tipo }}', {{ $tipo->costo_base }}, this)">
-                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                            <div>
-                                                @if($i === 0)<span class="premium-badge me-1">★ PREMIUM</span>@endif
-                                                <strong>{{ $tipo->nombre_tipo }}</strong>
-                                            </div>
-                                            <div class="text-end">
-                                                <div class="fw-bold {{ $i === 0 ? 'text-warning' : 'text-primary' }} fs-5">
-                                                    ${{ number_format($tipo->costo_base, 2) }}
-                                                </div>
-                                                <small class="text-muted">base MXN</small>
-                                            </div>
-                                        </div>
+                                    <div class="tipo-card {{ old('tipo_ambulancia_preferida') == $tipo->nombre_tipo ? 'selected' : '' }}"
+                                         onclick="seleccionarTipo('{{ $tipo->nombre_tipo }}', {{ (float)$tipo->costo_base }}, this)">
+                                        <strong class="fs-6">{{ $tipo->nombre_tipo }}</strong>
                                         @if($tipo->descripcion)
-                                        <p class="text-muted small mb-2">{{ $tipo->descripcion }}</p>
+                                        <p class="text-muted small mb-0 mt-1">{{ $tipo->descripcion }}</p>
                                         @endif
-                                        <div class="d-flex gap-1 flex-wrap">
-                                            <span class="badge bg-primary small"><i class="bx bx-user me-1"></i>2+ paramédicos</span>
-                                            <span class="badge bg-secondary small"><i class="bx bx-user-check me-1"></i>Operador</span>
-                                        </div>
                                     </div>
                                 </div>
                                 @endforeach
                             </div>
+                            @else
+                            <div class="alert alert-info small">
+                                <i class="bx bx-info-circle me-1"></i>
+                                No hay tipos de ambulancia disponibles en este momento. Aun así puede enviar su solicitud y nuestro equipo la atenderá.
+                            </div>
+                            @endif
                         </div>
 
                         {{-- sin tipo seleccionado --}}
@@ -356,7 +341,7 @@
 <script>
 (function () {
     var COSTO_KM       = {{ $costoKm }};
-    var TIPO_PREMIUM   = @json($tipoMaxCosto ? ['nombre' => $tipoMaxCosto->nombre_tipo, 'costo' => (float)$tipoMaxCosto->costo_base] : null);
+    var TIPO_PREMIUM   = @json($tiposDisponibles->first() ? ['nombre' => $tiposDisponibles->first()->nombre_tipo, 'costo' => (float)$tiposDisponibles->first()->costo_base] : null);
 
     var DEFAULT_LAT = 17.0669, DEFAULT_LNG = -96.7203, DEFAULT_ZOOM = 13;
 
@@ -464,9 +449,9 @@
         document.getElementById('est-total').textContent = fmt(total) + ' MXN*';
     }
 
-    // ── Selección de tipo de ambulancia (Evento/Otro) ──
+    // ── Selección de ambulancia ──
     window.seleccionarTipo = function(nombre, costo, card) {
-        document.querySelectorAll('#grid-tipos .tipo-card').forEach(function(c){
+        document.querySelectorAll('#grid-tipos .tipo-card, #grid-amb-fija .tipo-card').forEach(function(c){
             c.classList.remove('selected');
         });
         card.classList.add('selected');
@@ -487,7 +472,10 @@
 
         if (tipo === 'Traslado' || tipo === 'Emergencia') {
             wAmbFija.classList.remove('d-none');
-            if (TIPO_PREMIUM) {
+            var primeraFija = document.querySelector('#grid-amb-fija .tipo-card');
+            if (primeraFija && !fTipoPref.value) {
+                primeraFija.click();
+            } else if (!primeraFija && TIPO_PREMIUM) {
                 fTipoPref.value = TIPO_PREMIUM.nombre;
                 tipoAmbActual   = TIPO_PREMIUM;
             }

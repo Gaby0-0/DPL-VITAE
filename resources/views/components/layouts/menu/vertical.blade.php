@@ -126,23 +126,6 @@
       </a>
     </li>
 
-    <li class="menu-item {{ request()->is('municipios*') || request()->is('colonias*') || request()->is('direcciones*') ? 'active open' : '' }}">
-      <a href="javascript:void(0);" class="menu-link menu-toggle">
-        <i class="menu-icon tf-icons bx bx-map"></i>
-        <div class="text-truncate">Ubicaciones</div>
-      </a>
-      <ul class="menu-sub">
-        <li class="menu-item {{ request()->is('municipios*') ? 'active' : '' }}">
-          <a class="menu-link" href="{{ route('municipios.index') }}" wire:navigate>Municipios</a>
-        </li>
-        <li class="menu-item {{ request()->is('colonias*') ? 'active' : '' }}">
-          <a class="menu-link" href="{{ route('colonias.index') }}" wire:navigate>Colonias</a>
-        </li>
-        <li class="menu-item {{ request()->is('direcciones*') ? 'active' : '' }}">
-          <a class="menu-link" href="{{ route('direcciones.index') }}" wire:navigate>Direcciones</a>
-        </li>
-      </ul>
-    </li>
 
     <li class="menu-item {{ request()->is('cotizaciones*') ? 'active' : '' }}">
       <a class="menu-link" href="{{ route('cotizaciones.index') }}" wire:navigate>
