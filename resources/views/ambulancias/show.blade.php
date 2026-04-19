@@ -17,8 +17,7 @@
                 <dd class="col-sm-8">{{ $ambulancia->estado }}</dd>
                 <dt class="col-sm-4">Tipo</dt>
                 <dd class="col-sm-8">{{ $ambulancia->tipo->nombre_tipo ?? '—' }}</dd>
-                <dt class="col-sm-4">Operador</dt>
-                <dd class="col-sm-8">{{ $ambulancia->operador->usuario->nombre ?? '—' }}</dd>
+
             </dl>
         </div>
     </div>

@@ -16,9 +16,10 @@
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th>ID Usuario</th>
-                        <th>Nombre</th>
+                        <th>ID</th>
+                        <th>Nombre completo</th>
                         <th>Email</th>
+                        <th>Teléfono</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -26,19 +27,24 @@
                     @forelse($clientes as $cliente)
                     <tr>
                         <td>{{ $cliente->id_usuario }}</td>
-                        <td>{{ $cliente->usuario->nombre ?? '—' }}</td>
+                        <td>
+                            {{ $cliente->usuario->nombre ?? '—' }}
+                            {{ $cliente->usuario->ap_paterno ?? '' }}
+                            {{ $cliente->usuario->ap_materno ?? '' }}
+                        </td>
                         <td>{{ $cliente->usuario->email ?? '—' }}</td>
+                        <td>{{ $cliente->usuario->telefono ?? '—' }}</td>
                         <td>
                             <a href="{{ route('clientes.show', $cliente) }}" class="btn btn-sm btn-info"><i class="bx bx-show"></i></a>
                             <a href="{{ route('clientes.edit', $cliente) }}" class="btn btn-sm btn-warning"><i class="bx bx-edit"></i></a>
-                            <form action="{{ route('clientes.destroy', $cliente) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar?')">
+                            <form action="{{ route('clientes.destroy', $cliente) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar este cliente?')">
                                 @csrf @method('DELETE')
                                 <button class="btn btn-sm btn-danger"><i class="bx bx-trash"></i></button>
                             </form>
                         </td>
                     </tr>
                     @empty
-                    <tr><td colspan="4" class="text-center text-muted py-4">Sin registros</td></tr>
+                    <tr><td colspan="5" class="text-center text-muted py-4">Sin registros</td></tr>
                     @endforelse
                 </tbody>
             </table>

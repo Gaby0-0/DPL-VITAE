@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Cliente extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'cliente';
     protected $primaryKey = 'id_usuario';
     public $incrementing = false;
@@ -15,9 +18,9 @@ class Cliente extends Model
         'id_usuario'
     ];
 
-    public function user()
+    public function usuario()
     {
-        return $this->belongsTo(User::class,'id_usuario', 'id_usuario');
+        return $this->belongsTo(User::class, 'id_usuario');
     }
 
     public function servicios()

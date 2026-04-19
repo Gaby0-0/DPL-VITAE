@@ -93,7 +93,10 @@ class ParamedicoController extends Controller
 
     public function destroy(Paramedico $paramedico)
     {
-        $paramedico->usuario->delete();
+        DB::transaction(function () use ($paramedico) {
+            $paramedico->delete();
+            $paramedico->usuario->delete();
+        });
         return redirect()->route('paramedicos.index')->with('success', 'Paramédico eliminado.');
     }
 }

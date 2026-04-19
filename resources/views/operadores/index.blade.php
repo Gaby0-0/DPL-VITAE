@@ -19,6 +19,7 @@
                         <th>Nombre completo</th>
                         <th>Email</th>
                         <th>Salario/Hora</th>
+                        <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -35,6 +36,13 @@
                         <td>{{ $operador->usuario->email ?? '—' }}</td>
                         <td>${{ number_format($operador->salario_hora, 2) }}</td>
                         <td>
+                            @if($operador->en_servicio)
+                                <span class="badge bg-danger">En servicio</span>
+                            @else
+                                <span class="badge bg-success">Disponible</span>
+                            @endif
+                        </td>
+                        <td>
                             <a href="{{ route('operadores.show', $operador) }}" class="btn btn-sm btn-info"><i class="bx bx-show"></i></a>
                             <a href="{{ route('operadores.edit', $operador) }}" class="btn btn-sm btn-warning"><i class="bx bx-edit"></i></a>
                             <form action="{{ route('operadores.destroy', $operador) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar?')">
@@ -44,7 +52,7 @@
                         </td>
                     </tr>
                     @empty
-                    <tr><td colspan="5" class="text-center text-muted py-4">Sin registros</td></tr>
+                    <tr><td colspan="6" class="text-center text-muted py-4">Sin registros</td></tr>
                     @endforelse
                 </tbody>
             </table>

@@ -34,18 +34,7 @@
                         </select>
                         @error('id_tipo_ambulancia')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Operador <span class="text-danger">*</span></label>
-                        <select name="id_operador" class="form-select @error('id_operador') is-invalid @enderror" required>
-                            <option value="">-- Seleccionar --</option>
-                            @foreach($operadores as $operador)
-                                <option value="{{ $operador->id_usuario }}" {{ old('id_operador', $ambulancia->id_operador) == $operador->id_usuario ? 'selected' : '' }}>
-                                    {{ $operador->usuario->nombre ?? $operador->id_usuario }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('id_operador')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
+
                 </div>
                 <div class="mt-4">
                     <button type="submit" class="btn btn-primary">Actualizar</button>

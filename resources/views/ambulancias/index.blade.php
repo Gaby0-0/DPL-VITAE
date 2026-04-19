@@ -20,7 +20,6 @@
                         <th>Placa</th>
                         <th>Estado</th>
                         <th>Tipo</th>
-                        <th>Operador</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -31,7 +30,6 @@
                         <td>{{ $ambulancia->placa }}</td>
                         <td>{{ $ambulancia->estado }}</td>
                         <td>{{ $ambulancia->tipo->nombre_tipo ?? '—' }}</td>
-                        <td>{{ $ambulancia->operador->usuario->nombre ?? '—' }}</td>
                         <td>
                             <a href="{{ route('ambulancias.show', $ambulancia) }}" class="btn btn-sm btn-info"><i class="bx bx-show"></i></a>
                             <a href="{{ route('ambulancias.edit', $ambulancia) }}" class="btn btn-sm btn-warning"><i class="bx bx-edit"></i></a>
@@ -42,7 +40,7 @@
                         </td>
                     </tr>
                     @empty
-                    <tr><td colspan="6" class="text-center text-muted py-4">Sin registros</td></tr>
+                    <tr><td colspan="5" class="text-center text-muted py-4">Sin registros</td></tr>
                     @endforelse
                 </tbody>
             </table>

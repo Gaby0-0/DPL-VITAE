@@ -34,6 +34,7 @@ class Cotizacion extends Model
         'incluye',
         'nombre_paciente',
         'id_ambulancia',
+        'id_operador',
         'horas_servicio',
         'paramedicos_ids',
         'insumos_seleccionados',
@@ -64,6 +65,11 @@ class Cotizacion extends Model
     public function ambulancia()
     {
         return $this->belongsTo(Ambulancia::class, 'id_ambulancia');
+    }
+
+    public function operador()
+    {
+        return $this->belongsTo(Operador::class, 'id_operador');
     }
 
     public static function generarGuia(): string

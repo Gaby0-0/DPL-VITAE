@@ -7,6 +7,8 @@ use App\Models\Ambulancia;
 use App\Models\Paramedico;
 use App\Models\Insumo;
 use App\Models\Empresa;
+use App\Models\Operador;
+use App\Models\Servicio;
 use Illuminate\Http\Request;
 
 class CotizacionController extends Controller
@@ -109,12 +111,27 @@ class CotizacionController extends Controller
         $fecha = $cotizacion->fecha_requerida ?? now()->toDateString();
 
         // Ambulancias disponibles (activas, sin servicio ese día)
-        $ambulancias = Ambulancia::with('tipo', 'operador.usuario')
+        $ambulancias = Ambulancia::with('tipo')
             ->where('estado', 'Disponible')
             ->whereDoesntHave('servicios', function ($q) use ($fecha) {
                 $q->whereDate('fecha_hora', $fecha);
             })
             ->get();
+
+        // Operadores disponibles: sin servicio activo y sin servicio ese día
+        $operadores = Operador::with('usuario')
+            ->whereDoesntHave('servicios', function ($q) {
+                $q->where('estado', 'Activo');
+            })
+            ->whereDoesntHave('servicios', function ($q) use ($fecha) {
+                $q->whereDate('fecha_hora', $fecha)
+                  ->whereNotIn('estado', ['Cancelado']);
+            })
+            ->get();
+
+        // Sugerencia aleatoria (respeta selección previa si ya fue aceptada)
+        $operadorSugerido = $cotizacion->id_operador
+            ?? ($operadores->isNotEmpty() ? $operadores->random()->id_usuario : null);
 
         // Paramédicos disponibles ese día
         $paramedicos = Paramedico::with('usuario')
@@ -127,7 +144,8 @@ class CotizacionController extends Controller
 
         return view('cotizaciones.show', compact(
             'cotizacion', 'empresa', 'kmCalculado',
-            'ambulancias', 'paramedicos', 'insumos'
+            'ambulancias', 'operadores', 'operadorSugerido',
+            'paramedicos', 'insumos'
         ));
     }
 
@@ -146,18 +164,37 @@ class CotizacionController extends Controller
     public function aceptar(Request $request, Cotizacion $cotizacion)
     {
         $request->validate([
-            'km_distancia'   => 'required|numeric|min:0',
+            'km_distancia'      => 'required|numeric|min:0',
             'costo_km_unitario' => 'required|numeric|min:0',
-            'id_ambulancia'  => 'nullable|exists:ambulancia,id_ambulancia',
-            'horas_servicio' => 'nullable|numeric|min:0',
-            'paramedicos_ids' => 'nullable|array',
+            'id_ambulancia'     => 'nullable|exists:ambulancia,id_ambulancia',
+            'id_operador'       => 'required|exists:operador,id_usuario',
+            'horas_servicio'    => 'nullable|numeric|min:0',
+            'paramedicos_ids'   => 'nullable|array',
             'paramedicos_ids.*' => 'exists:paramedico,id_usuario',
-            'insumos'        => 'nullable|array',
-            'incluye'        => 'required|string',
-            'respuesta'      => 'nullable|string',
-            'nombre_paciente'=> 'nullable|string|max:200',
-            'anticipo'       => 'nullable|numeric|min:0',
+            'insumos'           => 'nullable|array',
+            'incluye'           => 'required|string',
+            'respuesta'         => 'nullable|string',
+            'nombre_paciente'   => 'nullable|string|max:200',
+            'anticipo'          => 'nullable|numeric|min:0',
         ]);
+
+        // Validar disponibilidad del operador
+        $fecha = $cotizacion->fecha_requerida ?? now()->toDateString();
+
+        $operadorActivo = Servicio::where('id_operador', $request->id_operador)
+            ->where('estado', 'Activo')
+            ->exists();
+        if ($operadorActivo) {
+            return back()->withErrors(['id_operador' => 'El operador seleccionado ya tiene un servicio activo en curso.'])->withInput();
+        }
+
+        $operadorOcupado = Servicio::where('id_operador', $request->id_operador)
+            ->whereDate('fecha_hora', $fecha)
+            ->whereNotIn('estado', ['Cancelado'])
+            ->exists();
+        if ($operadorOcupado) {
+            return back()->withErrors(['id_operador' => 'El operador ya está asignado a otro servicio en esa fecha.'])->withInput();
+        }
 
         $km       = (float) $request->km_distancia;
         $tarifaKm = (float) $request->costo_km_unitario;
@@ -167,11 +204,10 @@ class CotizacionController extends Controller
         // costo_base del tipo + salario_hora del operador * horas
         $costoAmbulancia = 0;
         if ($request->id_ambulancia) {
-            $amb = Ambulancia::with('tipo', 'operador')->find($request->id_ambulancia);
+            $amb = Ambulancia::with('tipo')->find($request->id_ambulancia);
             if ($amb) {
                 $costoTipo = (float) ($amb->tipo->costo_base ?? 0);
-                $salarioOp = (float) ($amb->operador->salario_hora ?? 0);
-                $costoAmbulancia = round($costoTipo + $salarioOp * $horas, 2);
+                $costoAmbulancia = round($costoTipo, 2);
             }
         }
 
@@ -212,6 +248,7 @@ class CotizacionController extends Controller
             'km_distancia'         => $km,
             'costo_km_unitario'    => $tarifaKm,
             'id_ambulancia'        => $request->id_ambulancia,
+            'id_operador'          => $request->id_operador,
             'horas_servicio'       => $request->horas_servicio,
             'paramedicos_ids'      => $request->paramedicos_ids ?? [],
             'insumos_seleccionados'=> $insumosGuardados,

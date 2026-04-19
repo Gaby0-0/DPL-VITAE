@@ -66,6 +66,18 @@
                         </select>
                         @error('id_cliente')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Operador <span class="text-danger">*</span></label>
+                        <select name="id_operador" class="form-select @error('id_operador') is-invalid @enderror" required>
+                            <option value="">-- Seleccionar --</option>
+                            @foreach($operadores as $operador)
+                                <option value="{{ $operador->id_usuario }}" {{ old('id_operador') == $operador->id_usuario ? 'selected' : '' }}>
+                                    {{ $operador->usuario->nombre ?? $operador->id_usuario }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('id_operador')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
                     <div class="col-12">
                         <label class="form-label">Observaciones</label>
                         <textarea name="observaciones" class="form-control @error('observaciones') is-invalid @enderror" rows="3">{{ old('observaciones') }}</textarea>

@@ -3,12 +3,21 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Servicio extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'servicio';
     protected $primaryKey = 'id_servicio';
     public $timestamps = false;
+
+    protected $casts = [
+        'deleted_at' => 'datetime',
+        'fecha_hora' => 'datetime',
+        'hora_salida' => 'datetime',
+    ];
 
     protected $fillable = [
         'costo_total',
@@ -18,12 +27,18 @@ class Servicio extends Model
         'observaciones',
         'tipo',
         'id_ambulancia',
-        'id_cliente'
+        'id_cliente',
+        'id_operador',
     ];
 
     public function ambulancia()
     {
         return $this->belongsTo(Ambulancia::class,'id_ambulancia');
+    }
+
+    public function operador()
+    {
+        return $this->belongsTo(Operador::class,'id_operador');
     }
 
     public function cliente()

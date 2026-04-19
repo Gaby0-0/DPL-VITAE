@@ -12,7 +12,9 @@ class OperadorController extends Controller
 {
     public function index()
     {
-        $operadores = Operador::with('usuario')->paginate(15);
+        $operadores = Operador::with('usuario')
+            ->withCount(['servicios as en_servicio' => fn($q) => $q->where('estado', 'Activo')])
+            ->paginate(15);
         return view('operadores.index', compact('operadores'));
     }
 
@@ -52,8 +54,9 @@ class OperadorController extends Controller
 
     public function show(Operador $operador)
     {
-        $operador->load(['usuario', 'ambulancias.tipo']);
-        return view('operadores.show', compact('operador'));
+        $operador->load(['usuario', 'servicios.ambulancia']);
+        $enServicio = $operador->servicios->where('estado', 'Activo')->isNotEmpty();
+        return view('operadores.show', compact('operador', 'enServicio'));
     }
 
     public function edit(Operador $operador)
@@ -93,7 +96,10 @@ class OperadorController extends Controller
 
     public function destroy(Operador $operador)
     {
-        $operador->usuario->delete(); // cascade elimina el operador por FK
+        DB::transaction(function () use ($operador) {
+            $operador->delete();
+            $operador->usuario->delete();
+        });
         return redirect()->route('operadores.index')->with('success', 'Operador eliminado.');
     }
 }

@@ -23,6 +23,8 @@
                         <dd class="col-sm-7">${{ number_format($servicio->costo_total, 2) }}</dd>
                         <dt class="col-sm-5">Ambulancia</dt>
                         <dd class="col-sm-7">{{ $servicio->ambulancia->placa ?? '—' }}</dd>
+                        <dt class="col-sm-5">Operador</dt>
+                        <dd class="col-sm-7">{{ $servicio->operador->usuario->nombre ?? '—' }}</dd>
                         <dt class="col-sm-5">Cliente</dt>
                         <dd class="col-sm-7">{{ $servicio->cliente->usuario->nombre ?? '—' }}</dd>
                         <dt class="col-sm-5">Observaciones</dt>

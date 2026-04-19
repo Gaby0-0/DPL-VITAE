@@ -11,7 +11,7 @@
         $totalClientes    = \App\Models\Cliente::count();
         $totalOperadores  = \App\Models\Operador::count();
 
-        $ultimosServicios = \App\Models\Servicio::with(['ambulancia', 'cliente.user'])
+        $ultimosServicios = \App\Models\Servicio::with(['ambulancia', 'cliente.usuario'])
             ->orderByDesc('fecha_hora')
             ->limit(10)
             ->get();

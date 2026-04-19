@@ -8,13 +8,24 @@
                 </div>
                 <div class="card-body">
                     <dl class="row">
-                        <dt class="col-sm-4">ID Usuario</dt>
+                        <dt class="col-sm-4">ID</dt>
                         <dd class="col-sm-8">{{ $cliente->id_usuario }}</dd>
                         <dt class="col-sm-4">Nombre</dt>
                         <dd class="col-sm-8">{{ $cliente->usuario->nombre ?? '—' }}</dd>
+                        <dt class="col-sm-4">Apellido Paterno</dt>
+                        <dd class="col-sm-8">{{ $cliente->usuario->ap_paterno ?? '—' }}</dd>
+                        <dt class="col-sm-4">Apellido Materno</dt>
+                        <dd class="col-sm-8">{{ $cliente->usuario->ap_materno ?? '—' }}</dd>
                         <dt class="col-sm-4">Email</dt>
                         <dd class="col-sm-8">{{ $cliente->usuario->email ?? '—' }}</dd>
+                        <dt class="col-sm-4">Teléfono</dt>
+                        <dd class="col-sm-8">{{ $cliente->usuario->telefono ?? '—' }}</dd>
                     </dl>
+                    <div class="mt-3">
+                        <a href="{{ route('clientes.edit', $cliente) }}" class="btn btn-warning btn-sm">
+                            <i class="bx bx-edit me-1"></i>Editar
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

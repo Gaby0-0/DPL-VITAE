@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Ambulancia extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'ambulancia';
     protected $primaryKey = 'id_ambulancia';
     public $timestamps = false;
@@ -14,17 +17,11 @@ class Ambulancia extends Model
         'placa',
         'estado',
         'id_tipo_ambulancia',
-        'id_operador',
     ];
 
     public function tipo()
     {
         return $this->belongsTo(TipoAmbulancia::class,'id_tipo_ambulancia');
-    }
-
-    public function operador()
-    {
-        return $this->belongsTo(Operador::class,'id_operador');
     }
 
     public function servicios()

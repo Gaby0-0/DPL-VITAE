@@ -369,6 +369,10 @@
         @if($ambulancias->isEmpty())
             <div class="alert alert-warning mb-0">No hay ambulancias activas disponibles para la fecha solicitada.</div>
         @else
+        <div class="mb-2">
+            <input type="text" id="search-amb" class="form-control form-control-sm"
+                placeholder="Buscar ambulancia..." oninput="pagers.amb && pagers.amb.filter()">
+        </div>
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
@@ -376,16 +380,14 @@
                         <th width="40"></th>
                         <th>Placa</th>
                         <th>Tipo</th>
-                        <th>Operador</th>
                         <th class="text-end">Base tipo</th>
-                        <th class="text-end">Op. $/h</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="tbody-amb">
                     @foreach($ambulancias as $amb)
                     <tr class="amb-row"
                         data-costo-tipo="{{ $amb->tipo->costo_base ?? 0 }}"
-                        data-salario-op="{{ $amb->operador->salario_hora ?? 0 }}"
+                        data-salario-op="0"
                         style="cursor:pointer" onclick="seleccionarAmb(this, {{ $amb->id_ambulancia }})">
                         <td>
                             <input type="radio" name="id_ambulancia" value="{{ $amb->id_ambulancia }}"
@@ -393,20 +395,13 @@
                         </td>
                         <td class="fw-semibold">{{ $amb->placa }}</td>
                         <td>{{ $amb->tipo->nombre_tipo ?? '—' }}</td>
-                        <td>
-                            @if($amb->operador && $amb->operador->usuario)
-                                <i class="bx bx-check text-success me-1"></i>{{ $amb->operador->usuario->nombre }}
-                            @else
-                                <span class="text-muted">Sin operador asignado</span>
-                            @endif
-                        </td>
                         <td class="text-end fw-bold text-success">${{ number_format($amb->tipo->costo_base ?? 0, 2) }}</td>
-                        <td class="text-end">${{ number_format($amb->operador->salario_hora ?? 0, 2) }}</td>
                     </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
+        <div id="pager-amb"></div>
         @endif
         <div class="mt-2 text-end">
             <span class="text-muted small">Subtotal ambulancia: </span>
@@ -415,15 +410,72 @@
     </div>
 </div>
 
-{{-- sección 3: paramédicos --}}
+{{-- sección 3: operador --}}
+<div class="card mb-4">
+    <div class="card-header bg-label-primary d-flex justify-content-between align-items-center">
+        <h6 class="mb-0"><i class="bx bx-user-check me-1"></i>3. Operador asignado</h6>
+        <span class="badge bg-info text-white">
+            <i class="bx bx-shuffle me-1"></i>Sugerido aleatoriamente — puedes cambiarlo
+        </span>
+    </div>
+    <div class="card-body">
+        @error('id_operador')
+            <div class="alert alert-danger py-2 mb-3">{{ $message }}</div>
+        @enderror
+        @if($operadores->isEmpty())
+            <div class="alert alert-warning mb-0">No hay operadores disponibles para la fecha solicitada.</div>
+        @else
+        <div class="mb-2">
+            <input type="text" id="search-op" class="form-control form-control-sm"
+                placeholder="Buscar operador..." oninput="pagers.op && pagers.op.filter()">
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th width="40"></th>
+                        <th>Nombre</th>
+                        <th class="text-end">$/hora</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody-op">
+                    @foreach($operadores as $op)
+                    @php $selected = old('id_operador', $operadorSugerido) == $op->id_usuario; @endphp
+                    <tr class="op-row {{ $selected ? 'table-success' : '' }}"
+                        style="cursor:pointer"
+                        onclick="seleccionarOp(this, {{ $op->id_usuario }})">
+                        <td>
+                            <input type="radio" name="id_operador" value="{{ $op->id_usuario }}"
+                                class="form-check-input" {{ $selected ? 'checked' : '' }}>
+                        </td>
+                        <td class="fw-semibold">
+                            {{ $op->usuario->nombre ?? '—' }}
+                            {{ $op->usuario->ap_paterno ?? '' }}
+                        </td>
+                        <td class="text-end">${{ number_format($op->salario_hora, 2) }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        <div id="pager-op"></div>
+        @endif
+    </div>
+</div>
+
+{{-- sección 4: paramédicos --}}
 <div class="card mb-4">
     <div class="card-header bg-label-primary">
-        <h6 class="mb-0"><i class="bx bx-user-plus me-1"></i>3. Paramédicos <span class="badge bg-warning text-dark ms-1">Mínimo 2</span></h6>
+        <h6 class="mb-0"><i class="bx bx-user-plus me-1"></i>4. Paramédicos <span class="badge bg-warning text-dark ms-1">Mínimo 2</span></h6>
     </div>
     <div class="card-body">
         @if($paramedicos->isEmpty())
             <div class="alert alert-warning">No hay paramédicos disponibles para la fecha solicitada.</div>
         @else
+        <div class="mb-2">
+            <input type="text" id="search-pm" class="form-control form-control-sm"
+                placeholder="Buscar paramédico..." oninput="pagers.pm && pagers.pm.filter()">
+        </div>
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
@@ -455,6 +507,7 @@
                 </tbody>
             </table>
         </div>
+        <div id="pager-pm"></div>
         @endif
 
         <div class="mt-2 d-flex justify-content-between align-items-center">
@@ -467,10 +520,10 @@
     </div>
 </div>
 
-{{-- sección 4: insumos --}}
+{{-- sección 5: insumos --}}
 <div class="card mb-4">
     <div class="card-header bg-label-primary">
-        <h6 class="mb-0"><i class="bx bx-injection me-1"></i>4. Insumos especiales
+        <h6 class="mb-0"><i class="bx bx-injection me-1"></i>5. Insumos especiales
             @if($cotizacion->padecimientos_paciente)
                 <span class="badge bg-warning text-dark ms-1"><i class="bx bx-plus-medical me-1"></i>Revisar padecimientos</span>
             @endif
@@ -486,6 +539,10 @@
         @if($insumos->isEmpty())
             <div class="alert alert-info mb-0">No hay insumos registrados en el catálogo.</div>
         @else
+        <div class="mb-2">
+            <input type="text" id="search-ins" class="form-control form-control-sm"
+                placeholder="Buscar insumo..." oninput="pagers.ins && pagers.ins.filter()">
+        </div>
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
@@ -497,7 +554,7 @@
                         <th class="text-end">Subtotal</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="tbody-ins">
                     @foreach($insumos as $ins)
                     <tr class="ins-row" data-costo="{{ $ins->costo_unidad }}" data-id="{{ $ins->id_insumo }}">
                         <td>
@@ -518,6 +575,7 @@
                 </tbody>
             </table>
         </div>
+        <div id="pager-ins"></div>
         @endif
         <div class="mt-2 text-end">
             <span class="text-muted small">Subtotal insumos: </span>
@@ -526,10 +584,10 @@
     </div>
 </div>
 
-{{-- sección 5: resumen y envío --}}
+{{-- sección 6: resumen y envío --}}
 <div class="card mb-4 border-success">
     <div class="card-header bg-label-success">
-        <h6 class="mb-0 text-success"><i class="bx bx-receipt me-1"></i>5. Resumen del paquete</h6>
+        <h6 class="mb-0 text-success"><i class="bx bx-receipt me-1"></i>6. Resumen del paquete</h6>
     </div>
     <div class="card-body">
         <table class="table table-sm mb-3">
@@ -652,6 +710,58 @@ $datosInsumos = $insumos->map(function($i) {
 @endphp
 
 <script>
+// ── Paginador cliente genérico ──
+var pagers = {};
+function TablePager(cfg) {
+    var tbody   = document.getElementById(cfg.tbody);
+    var searchEl = cfg.search ? document.getElementById(cfg.search) : null;
+    var pagerEl  = cfg.pager  ? document.getElementById(cfg.pager)  : null;
+    var pageSize = cfg.pageSize || 8;
+    var page = 1;
+
+    function allRows() { return tbody ? Array.from(tbody.querySelectorAll('tr')) : []; }
+
+    function filteredRows() {
+        var q = searchEl ? searchEl.value.trim().toLowerCase() : '';
+        return allRows().filter(function(r) {
+            return !q || r.textContent.toLowerCase().includes(q);
+        });
+    }
+
+    function render() {
+        var rows = filteredRows();
+        var pages = Math.ceil(rows.length / pageSize) || 1;
+        page = Math.max(1, Math.min(page, pages));
+        var start = (page - 1) * pageSize;
+
+        allRows().forEach(function(r) { r.style.display = 'none'; });
+        rows.slice(start, start + pageSize).forEach(function(r) { r.style.display = ''; });
+
+        if (pagerEl) {
+            if (rows.length <= pageSize) {
+                pagerEl.innerHTML = '';
+            } else {
+                pagerEl.innerHTML =
+                    '<div class="d-flex justify-content-between align-items-center mt-2 px-1">' +
+                    '<small class="text-muted">' + rows.length + ' registros &nbsp;|&nbsp; página ' + page + ' de ' + pages + '</small>' +
+                    '<div class="btn-group btn-group-sm">' +
+                    '<button type="button" class="btn btn-outline-secondary" ' + (page <= 1 ? 'disabled' : '') + ' onclick="pagers[\'' + cfg.id + '\'].prev()">&#8249;</button>' +
+                    '<button type="button" class="btn btn-outline-secondary" ' + (page >= pages ? 'disabled' : '') + ' onclick="pagers[\'' + cfg.id + '\'].next()">&#8250;</button>' +
+                    '</div></div>';
+            }
+        }
+    }
+
+    if (searchEl) searchEl.addEventListener('input', function() { page = 1; render(); });
+    render();
+
+    return {
+        filter: function() { page = 1; render(); },
+        prev:   function() { page--; render(); },
+        next:   function() { page++; render(); },
+    };
+}
+
 // ── Datos de paramédicos para generarIncluye ──
 var datosParamedicos = @json($datosParamedicos);
 var datosInsumos     = @json($datosInsumos);
@@ -680,6 +790,13 @@ function getAmbCosto() {
 }
 function actualizarSubtotalAmb() {
     document.getElementById('sub_ambulancia').textContent = fmt(getAmbCosto());
+}
+
+// ── Operador ──
+function seleccionarOp(row, id) {
+    document.querySelectorAll('.op-row').forEach(r => r.classList.remove('table-success'));
+    row.classList.add('table-success');
+    row.querySelector('input[type=radio]').checked = true;
 }
 
 // ── Paramédicos ──
@@ -757,10 +874,13 @@ function generarIncluye() {
     var ambRow = document.querySelector('.amb-row.table-success');
     if (ambRow) {
         var tipoCell = ambRow.querySelectorAll('td')[2];
-        var opCell   = ambRow.querySelectorAll('td')[3];
         lines.push('• Ambulancia ' + (tipoCell ? tipoCell.textContent.trim() : ''));
-        var opText = opCell ? opCell.textContent.trim() : '';
-        if (opText && !opText.includes('Sin operador')) lines.push('• Operador: ' + opText);
+    }
+
+    var opRow = document.querySelector('.op-row.table-success');
+    if (opRow) {
+        var opNombre = opRow.querySelectorAll('td')[1].textContent.trim();
+        if (opNombre) lines.push('• Operador: ' + opNombre);
     }
 
     var pmNames = [];
@@ -808,6 +928,20 @@ document.addEventListener('DOMContentLoaded', function () {
     recalcularKm();
     recalcularParamedicos();
     recalcularInsumos();
+
+    // Inicializar paginadores de tablas de selección
+    if (document.getElementById('tbody-amb')) {
+        pagers.amb = TablePager({ id: 'amb', tbody: 'tbody-amb', search: 'search-amb', pager: 'pager-amb', pageSize: 8 });
+    }
+    if (document.getElementById('tbody-op')) {
+        pagers.op = TablePager({ id: 'op', tbody: 'tbody-op', search: 'search-op', pager: 'pager-op', pageSize: 8 });
+    }
+    if (document.getElementById('tabla-paramedicos')) {
+        pagers.pm = TablePager({ id: 'pm', tbody: 'tabla-paramedicos', search: 'search-pm', pager: 'pager-pm', pageSize: 8 });
+    }
+    if (document.getElementById('tbody-ins')) {
+        pagers.ins = TablePager({ id: 'ins', tbody: 'tbody-ins', search: 'search-ins', pager: 'pager-ins', pageSize: 8 });
+    }
 });
 </script>
 

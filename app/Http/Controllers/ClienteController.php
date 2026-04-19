@@ -91,7 +91,10 @@ class ClienteController extends Controller
 
     public function destroy(Cliente $cliente)
     {
-        $cliente->usuario->delete();
+        DB::transaction(function () use ($cliente) {
+            $cliente->delete();
+            $cliente->usuario->delete();
+        });
         return redirect()->route('clientes.index')->with('success', 'Cliente eliminado.');
     }
 }

@@ -34,19 +34,18 @@
       <span class="menu-header-text">Operaciones</span>
     </li>
 
-    <li class="menu-item {{ request()->is('servicios*') ? 'active open' : '' }}">
-      <a href="javascript:void(0);" class="menu-link menu-toggle">
+    <li class="menu-item {{ request()->is('servicios*') ? 'active' : '' }}">
+      <a class="menu-link" href="{{ route('servicios.index') }}" wire:navigate>
         <i class="menu-icon tf-icons bx bx-ambulance"></i>
-        <div class="text-truncate">Servicios</div>
+        <div class="text-truncate">Historial de Servicios</div>
       </a>
-      <ul class="menu-sub">
-        <li class="menu-item {{ request()->is('servicios') ? 'active' : '' }}">
-          <a class="menu-link" href="{{ route('servicios.index') }}" wire:navigate>Todos los Servicios</a>
-        </li>
-        <li class="menu-item {{ request()->is('eventos*') ? 'active' : '' }}">
-          <a class="menu-link" href="{{ route('eventos.index') }}" wire:navigate>Eventos</a>
-        </li>
-      </ul>
+    </li>
+
+    <li class="menu-item {{ request()->is('eventos*') ? 'active' : '' }}">
+      <a class="menu-link" href="{{ route('eventos.index') }}" wire:navigate>
+        <i class="menu-icon tf-icons bx bx-calendar-event"></i>
+        <div class="text-truncate">Eventos</div>
+      </a>
     </li>
 
     <li class="menu-item {{ request()->is('pacientes*') ? 'active open' : '' }}">
