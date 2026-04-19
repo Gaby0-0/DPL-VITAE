@@ -75,8 +75,7 @@
             "php-http/discovery": true
         },
         "disable-tls": false,
-        "secure-http": true,
-        "cafile": "C:/xampp/php/cacert.pem"
+        "secure-http": true
     },
     "minimum-stability": "stable",
     "prefer-stable": true
