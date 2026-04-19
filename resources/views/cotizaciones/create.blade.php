@@ -122,10 +122,17 @@
                                     value="{{ $nombrePre }}" placeholder="Tu nombre" required>
                                 @error('nombre')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
-                            <div class="col-md-6">
+                            {{-- poner validacion de solo 10 digitos --}}
+                            <div class="col-md-6"> //dcdc
                                 <label class="form-label">Teléfono <span class="text-danger">*</span></label>
-                                <input type="text" name="telefono" class="form-control @error('telefono') is-invalid @enderror"
-                                    value="{{ old('telefono') }}" placeholder="Ej. 951 123 4567" required>
+                                <input type="text" 
+                                name="telefono" 
+                                class="form-control @error('telefono') is-invalid @enderror"
+                                value="{{ old('telefono') }}"
+                                placeholder="Ej. 9511234567"
+                                pattern="[0-9]{15}"
+                                maxlength="15"
+                                required>
                                 @error('telefono')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                             <div class="col-md-6">
@@ -151,7 +158,6 @@
                                     <option value="">— Selecciona —</option>
                                     <option value="Traslado"   {{ old('tipo_servicio') == 'Traslado'   ? 'selected' : '' }}>Traslado de paciente</option>
                                     <option value="Evento"     {{ old('tipo_servicio') == 'Evento'     ? 'selected' : '' }}>Cobertura de evento</option>
-                                    <option value="Emergencia" {{ old('tipo_servicio') == 'Emergencia' ? 'selected' : '' }}>Emergencia médica</option>
                                     <option value="Otro"       {{ old('tipo_servicio') == 'Otro'       ? 'selected' : '' }}>Otro</option>
                                 </select>
                                 @error('tipo_servicio')<div class="invalid-feedback">{{ $message }}</div>@enderror
@@ -163,8 +169,9 @@
                                     value="{{ old('fecha_requerida') }}" min="{{ date('Y-m-d') }}">
                                 @error('fecha_requerida')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
+                            {{-- solo si es evento u otro --}}
                             <div class="col-md-6">
-                                <label class="form-label">Número de personas</label>
+                                <label class="form-label">Número aproximado de personas</label>
                                 <input type="number" name="personas"
                                     class="form-control @error('personas') is-invalid @enderror"
                                     value="{{ old('personas') }}" min="1" placeholder="Ej. 50">

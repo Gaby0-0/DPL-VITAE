@@ -27,7 +27,7 @@ class ClienteController extends Controller
             'nombre'      => 'required|string|max:100',
             'ap_paterno'  => 'required|string|max:100',
             'ap_materno'  => 'nullable|string|max:100',
-            'telefono'    => 'nullable|string|max:20',
+            'telefono'    => 'nullable|string|max:15',
             'email'       => 'required|email|max:150|unique:users,email',
             'password'    => 'required|string|min:8|confirmed',
         ]);
