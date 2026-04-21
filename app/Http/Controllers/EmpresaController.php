@@ -10,7 +10,7 @@ class EmpresaController extends Controller
 {
     public function index()
     {
-        $empresas = Empresa::paginate(15);
+        $empresas = Empresa::paginate(8);
         return view('empresas.index', compact('empresas'));
     }
 

@@ -87,7 +87,7 @@ class CotizacionController extends Controller
 
     public function index()
     {
-        $cotizaciones = Cotizacion::latest()->paginate(20);
+        $cotizaciones = Cotizacion::latest()->paginate(8);
         return view('cotizaciones.index', compact('cotizaciones'));
     }
 
@@ -290,7 +290,7 @@ class CotizacionController extends Controller
     public function misSolicitudes()
     {
         $empresa = Empresa::first();
-        $cotizaciones = Cotizacion::where('user_id', auth()->id())->latest()->paginate(10);
+        $cotizaciones = Cotizacion::where('user_id', auth()->id())->latest()->paginate(8);
         return view('cotizaciones.mis-solicitudes', compact('empresa', 'cotizaciones'));
     }
 

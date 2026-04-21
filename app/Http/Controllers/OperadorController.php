@@ -14,7 +14,7 @@ class OperadorController extends Controller
     {
         $operadores = Operador::with('usuario')
             ->withCount(['servicios as en_servicio' => fn($q) => $q->where('estado', 'Activo')])
-            ->paginate(15);
+            ->paginate(8);
         return view('operadores.index', compact('operadores'));
     }
 

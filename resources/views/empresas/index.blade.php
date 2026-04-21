@@ -54,6 +54,9 @@
                 </tbody>
             </table>
         </div>
-        <div class="card-footer">{{ $empresas->links() }}</div>
+        <div class="card-footer d-flex justify-content-between align-items-center">
+            <small class="text-muted">Total: {{ $empresas->total() }} registros</small>
+            {{ $empresas->links() }}
+        </div>
     </div>
 </x-layouts.app>

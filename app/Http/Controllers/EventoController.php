@@ -10,7 +10,7 @@ class EventoController extends Controller
 {
     public function index()
     {
-        $eventos = Evento::with('servicio')->paginate(15);
+        $eventos = Evento::with('servicio')->paginate(8);
         return view('eventos.index', compact('eventos'));
     }
 

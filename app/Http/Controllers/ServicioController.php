@@ -13,7 +13,7 @@ class ServicioController extends Controller
 {
    public function index()
     {
-        $servicios = Servicio::with(['ambulancia', 'cliente.usuario', 'operador.usuario'])->paginate(15);
+        $servicios = Servicio::with(['ambulancia', 'cliente.usuario', 'operador.usuario'])->paginate(8);
         return view('servicios.index', compact('servicios'));
     } 
 

@@ -10,7 +10,7 @@ class DireccionController extends Controller
 {
     public function index()
     {
-        $direcciones = Direccion::with('colonia.municipio')->paginate(15);
+        $direcciones = Direccion::with('colonia.municipio')->paginate(8);
         return view('direcciones.index', compact('direcciones'));
     }
 

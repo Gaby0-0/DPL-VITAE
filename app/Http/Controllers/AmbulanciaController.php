@@ -10,7 +10,7 @@ class AmbulanciaController extends Controller
 {
     public function index()
     {
-        $ambulancias = Ambulancia::with(['tipo'])->paginate(15);
+        $ambulancias = Ambulancia::with(['tipo'])->paginate(8);
         return view('ambulancias.index', compact('ambulancias'));
     }
 

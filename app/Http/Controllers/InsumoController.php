@@ -9,7 +9,7 @@ class InsumoController extends Controller
 {
     public function index()
     {
-        $insumos = Insumo::paginate(15);
+        $insumos = Insumo::paginate(8);
         return view('insumos.index', compact('insumos'));
     }
 

@@ -12,7 +12,7 @@ class ParamedicoController extends Controller
 {
     public function index()
     {
-        $paramedicos = Paramedico::with('usuario')->paginate(15);
+        $paramedicos = Paramedico::with('usuario')->paginate(8);
         return view('paramedicos.index', compact('paramedicos'));
     }
 

@@ -10,7 +10,7 @@ class ColoniaController extends Controller
 {
     public function index()
     {
-        $colonias = Colonia::with('municipio')->paginate(15);
+        $colonias = Colonia::with('municipio')->paginate(8);
         return view('colonias.index', compact('colonias'));
     }
 

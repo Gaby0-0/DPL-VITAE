@@ -9,7 +9,7 @@ class MunicipioController extends Controller
 {
     public function index()
     {
-        $municipios = Municipio::paginate(15);
+        $municipios = Municipio::paginate(8);
         return view('municipios.index', compact('municipios'));
     }
 

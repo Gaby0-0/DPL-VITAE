@@ -60,6 +60,9 @@
                 </tbody>
             </table>
         </div>
-        <div class="card-footer">{{ $cotizaciones->links() }}</div>
+        <div class="card-footer d-flex justify-content-between align-items-center">
+            <small class="text-muted">Total: {{ $cotizaciones->total() }} registros</small>
+            {{ $cotizaciones->links() }}
+        </div>
     </div>
 </x-layouts.app>

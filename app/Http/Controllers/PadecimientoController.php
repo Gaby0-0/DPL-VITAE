@@ -9,7 +9,7 @@ class PadecimientoController extends Controller
 {
     public function index()
     {
-        $padecimientos = Padecimiento::paginate(15);
+        $padecimientos = Padecimiento::paginate(8);
         return view('padecimientos.index', compact('padecimientos'));
     }
 

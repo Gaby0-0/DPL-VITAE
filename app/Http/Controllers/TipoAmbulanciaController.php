@@ -9,7 +9,7 @@ class TipoAmbulanciaController extends Controller
 {
     public function index()
     {
-        $tipos = TipoAmbulancia::paginate(15);
+        $tipos = TipoAmbulancia::paginate(8);
         return view('tipos-ambulancia.index', compact('tipos'));
     }
 
