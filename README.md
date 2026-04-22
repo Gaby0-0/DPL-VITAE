@@ -48,6 +48,8 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 composer update
 npm install
 php artisan key:generate
-php artisan migrate
+php artisan migrate  (php artisan migrate:fresh --seed)
+php artisan db:seed
+php artisan db:seed --class=AdminSeeder
 npm run dev
 php artisan serve
