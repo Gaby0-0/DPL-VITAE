@@ -9,6 +9,8 @@ use App\Models\Insumo;
 use App\Models\Empresa;
 use App\Models\Operador;
 use App\Models\Servicio;
+use App\Models\TipoAmbulancia;
+use App\Models\Padecimiento;
 use Illuminate\Http\Request;
 
 class CotizacionController extends Controller
@@ -17,59 +19,153 @@ class CotizacionController extends Controller
     {
         $user = auth()->user();
         $empresa = Empresa::first();
-        $tiposAmbulancia = \App\Models\TipoAmbulancia::orderByDesc('costo_base')->get();
-        $tiposDisponibles = \App\Models\TipoAmbulancia::whereHas('ambulancias', function ($q) {
-                $q->where('estado', 'Disponible');
-            })->orderByDesc('costo_base')->get();
-        return view('cotizaciones.create', compact('empresa', 'tiposAmbulancia', 'tiposDisponibles', 'user'));
+
+        $tiposAmbulancia = TipoAmbulancia::orderByDesc('costo_base')->get();
+
+        $tiposDisponibles = TipoAmbulancia::whereHas('ambulancias', function ($q) {
+            $q->where('estado', 'Disponible');
+        })->orderByDesc('costo_base')->get();
+
+        $padecimientos = Padecimiento::orderBy('nombre_padecimiento')->get();
+
+        return view('cotizaciones.create', compact(
+            'empresa',
+            'tiposAmbulancia',
+            'tiposDisponibles',
+            'padecimientos',
+            'user'
+        ));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'nombre'                 => 'required|string|max:150',
-            'telefono'               => 'required|string|max:20',
-            'correo'                 => 'nullable|email|max:150',
-            'tipo_servicio'          => 'required|string|max:100',
-            'descripcion'            => 'nullable|string',
-            'fecha_requerida'        => 'nullable|date|after_or_equal:today',
-            'origen'                 => 'nullable|string|max:500',
-            'lat_origen'             => 'nullable|numeric|between:-90,90',
-            'lng_origen'             => 'nullable|numeric|between:-180,180',
-            'destino'                => 'nullable|string|max:500',
-            'lat_destino'            => 'nullable|numeric|between:-90,90',
-            'lng_destino'            => 'nullable|numeric|between:-180,180',
+        $validated = $request->validate([
+            'nombre'                    => 'required|string|max:150',
+            'telefono'                  => 'required|string|max:20',
+            'correo'                    => 'nullable|email|max:150',
+            'tipo_servicio'             => 'required|string|max:100',
+            'descripcion'               => 'nullable|string',
+            'fecha_requerida'           => 'nullable|date|after_or_equal:today',
+            'origen'                    => 'nullable|string|max:500',
+            'lat_origen'                => 'nullable|numeric|between:-90,90',
+            'lng_origen'                => 'nullable|numeric|between:-180,180',
+            'destino'                   => 'nullable|string|max:500',
+            'lat_destino'               => 'nullable|numeric|between:-90,90',
+            'lng_destino'               => 'nullable|numeric|between:-180,180',
             'personas'                  => 'nullable|integer|min:1',
-            'padecimientos_paciente'    => 'nullable|string',
-            'tipo_ambulancia_preferida' => 'nullable|string|max:150',
+            'tipo_ambulancia_preferida' => 'required|string|max:150',
+
+            //datos del paciente
+            'nombre_paciente'           => 'nullable|string|max:150',
+            'nacimiento'                => 'nullable|date',
+            'curp'                      => 'nullable|string|max:18',
+            'tipo_sangre'               => 'nullable|string|max:10',
+            'diagnostico'               => 'nullable|string|max:1000',
+            'alergias'                  => 'nullable|string|max:1000',
+            'medico'                    => 'nullable|string|max:150',
+            'observaciones_medicas'     => 'nullable|string|max:1000',
+
+            //catalogo de padecimientos
+            'padecimientos'             => 'nullable|array',
+            'padecimientos.*'           => 'exists:padecimiento,id_padecimiento',
         ]);
 
-        $data                = $request->all();
-        $data['user_id']     = auth()->id();
-        $data['numero_guia'] = Cotizacion::generarGuia();
-        $data['estado']      = 'Pendiente';
 
-        if (!empty($data['lat_origen']) && !empty($data['lng_origen']) &&
-            !empty($data['lat_destino']) && !empty($data['lng_destino'])) {
-            $data['km_distancia'] = Cotizacion::haversineKm(
-                $data['lat_origen'], $data['lng_origen'],
-                $data['lat_destino'], $data['lng_destino']
+        $empresa = Empresa::first();
+
+        $tipoAmbulancia = TipoAmbulancia::where('nombre_tipo', $validated['tipo_ambulancia_preferida'])->first();
+
+        $padecimientosSeleccionados = collect();
+        if (!empty($validated['padecimientos'])) {
+            $padecimientosSeleccionados = Padecimiento::whereIn(
+                'id_padecimiento',
+                $validated['padecimientos']
+            )->get();
+        }
+
+
+        $costoExtraPadecimientos = (float) $padecimientosSeleccionados->sum('costo_extra');
+
+        $kmDistancia = null;
+        if (
+            !empty($validated['lat_origen']) &&
+            !empty($validated['lng_origen']) &&
+            !empty($validated['lat_destino']) &&
+            !empty($validated['lng_destino'])
+        ) {
+            $kmDistancia = Cotizacion::haversineKm(
+                $validated['lat_origen'],
+                $validated['lng_origen'],
+                $validated['lat_destino'],
+                $validated['lng_destino']
             );
         }
 
-        $cotizacion = Cotizacion::create($data);
+        $costoKmUnitario = (float) ($empresa->costo_km ?? 0);
+        $costoKm = $kmDistancia ? ($kmDistancia * $costoKmUnitario) : 0;
+        $costoAmbulancia = (float) ($tipoAmbulancia->costo_base ?? 0);
+        $costoParamedicos = 0;
+        $costoInsumos = 0;
+
+        $costoTotal = $costoKm + $costoAmbulancia + $costoParamedicos + $costoInsumos + $costoExtraPadecimientos;
+
+        $cotizacion = Cotizacion::create([
+            'user_id'                   => auth()->id(),
+            'numero_guia'               => Cotizacion::generarGuia(),
+            'nombre'                    => $validated['nombre'],
+            'telefono'                  => $validated['telefono'],
+            'correo'                    => $validated['correo'] ?? null,
+            'tipo_servicio'             => $validated['tipo_servicio'],
+            'tipo_ambulancia_preferida' => $validated['tipo_ambulancia_preferida'],
+            'descripcion'               => $validated['descripcion'] ?? null,
+            'fecha_requerida'           => $validated['fecha_requerida'] ?? null,
+            'origen'                    => $validated['origen'] ?? null,
+            'lat_origen'                => $validated['lat_origen'] ?? null,
+            'lng_origen'                => $validated['lng_origen'] ?? null,
+            'destino'                   => $validated['destino'] ?? null,
+            'lat_destino'               => $validated['lat_destino'] ?? null,
+            'lng_destino'               => $validated['lng_destino'] ?? null,
+            'personas'                  => $validated['personas'] ?? null,
+            'padecimientos_paciente'    => $padecimientosSeleccionados->pluck('nombre_padecimiento')->implode(', '),
+            'nombre_paciente'           => $validated['nombre_paciente'] ?? null,
+            'estado'                    => 'Pendiente',
+            'km_distancia'              => $kmDistancia,
+            'costo_km_unitario'         => $costoKmUnitario,
+            'costo_ambulancia'          => $costoAmbulancia,
+            'costo_paramedicos'         => $costoParamedicos,
+            'costo_insumos'             => $costoInsumos,
+            'costo'                     => $costoTotal,
+            'anticipo'                  => 0,
+
+            'datos_paciente' => [
+                'nombre' => $validated['nombre_paciente'] ?? null,
+                'nacimiento' => $validated['nacimiento'] ?? null,
+                'curp' => $validated['curp'] ?? null,
+                'tipo_sangre' => $validated['tipo_sangre'] ?? null,
+                'diagnostico' => $validated['diagnostico'] ?? null,
+                'alergias' => $validated['alergias'] ?? null,
+                'medico' => $validated['medico'] ?? null,
+                'observaciones_medicas' => $validated['observaciones_medicas'] ?? null,
+                'padecimientos_ids' => $padecimientosSeleccionados->pluck('id_padecimiento')->toArray(),
+                'padecimientos' => $padecimientosSeleccionados->pluck('nombre_padecimiento')->toArray(),
+                'costo_extra_padecimientos' => $costoExtraPadecimientos,
+            ],
+        ]);
 
         return redirect()->route('cotizaciones.gracias')
-            ->with('numero_guia', $data['numero_guia'])
+            ->with('numero_guia', $cotizacion->numero_guia)
             ->with('cotizacion_id', $cotizacion->id_cotizacion);
     }
 
+
     public function gracias()
     {
-        $empresa    = Empresa::first();
+        $empresa = Empresa::first();
         $numeroGuia = session('numero_guia');
+
         return view('cotizaciones.gracias', compact('empresa', 'numeroGuia'));
     }
+
 
     public function rastrear(Request $request)
     {

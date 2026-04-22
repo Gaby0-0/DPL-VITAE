@@ -220,6 +220,27 @@
                 @if($cotizacion->datos_paciente['medico'] ?? null)
                 <div class="field"><label>Médico tratante</label><span>{{ $cotizacion->datos_paciente['medico'] }}</span></div>
                 @endif
+                @if(!empty($cotizacion->datos_paciente['padecimientos']))
+                <div class="field" style="grid-column:span 2">
+                    <label>Padecimientos del paciente</label>
+                    <span>
+                        <ul style="margin-top: 6px; margin-left: 18px;">
+                            @foreach($cotizacion->datos_paciente['padecimientos'] as $p)
+                                <li>{{ $p }}</li>
+                            @endforeach
+                        </ul>
+                    </span>
+                </div>
+                @endif
+
+                @if(!empty($cotizacion->datos_paciente['costo_extra_padecimientos']))
+                <div class="field" style="grid-column:span 2">
+                    <label>Costo extra por padecimientos</label>
+                    <span>${{ number_format($cotizacion->datos_paciente['costo_extra_padecimientos'], 2) }}</span>
+                </div>
+                @endif
+
+
             </div>
         </div>
     </div>

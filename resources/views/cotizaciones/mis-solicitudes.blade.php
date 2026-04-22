@@ -111,6 +111,25 @@
                                 @endif
                             </td>
                             <td>
+                                <small>
+                                    @if(!empty($cot->datos_paciente['padecimientos']))
+                                        <ul class="mb-0 ps-3">
+                                            @foreach($cot->datos_paciente['padecimientos'] as $p)
+                                                <li>{{ $p }}</li>
+                                            @endforeach
+                                        </ul>
+                                    @else
+                                        <span class="text-muted">Sin registro</span>
+                                    @endif
+
+                                    @if(!empty($cot->datos_paciente['costo_extra_padecimientos']))
+                                        <div class="mt-1">
+                                            <strong>+$ {{ number_format($cot->datos_paciente['costo_extra_padecimientos'], 2) }}</strong>
+                                        </div>
+                                    @endif
+                                </small>
+                            </td>
+                            <td>
                                 <a href="{{ route('cotizaciones.mi-estado', $cot) }}" class="btn btn-sm btn-outline-primary">
                                     <i class="bx bx-show me-1"></i> Ver
                                 </a>

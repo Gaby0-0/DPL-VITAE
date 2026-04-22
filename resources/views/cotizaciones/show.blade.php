@@ -1,6 +1,6 @@
-@section('title', 'Cotización ' . $cotizacion->numero_guia)
 
-@section('vendor-style')
+<x-layouts.app :title="'Cotización ' . $cotizacion->numero_guia">
+
 <style>
 @media print {
     /* Ocultar toda la interfaz */
@@ -35,9 +35,7 @@
     .card-body .btn, .card-footer { display: none !important; }
 }
 </style>
-@endsection
 
-<x-layouts.app :title="'Cotización ' . $cotizacion->numero_guia">
 
 @php
     $tieneOrigen  = $cotizacion->lat_origen  && $cotizacion->lng_origen;
@@ -137,11 +135,6 @@
                 <dd class="col-7 fw-bold">{{ $cotizacion->km_distancia ?? $kmCalculado }} km</dd>
                 @endif
 
-                @if($cotizacion->padecimientos_paciente)
-                <dt class="col-5 text-muted"><i class="bx bx-plus-medical text-warning me-1"></i>Padecimientos</dt>
-                <dd class="col-7">{{ $cotizacion->padecimientos_paciente }}</dd>
-                @endif
-
                 @if($cotizacion->nombre_paciente)
                 <dt class="col-5 text-muted">Paciente</dt>
                 <dd class="col-7">{{ $cotizacion->nombre_paciente }}</dd>
@@ -210,41 +203,79 @@
         </div>
         @endif
 
-        @if($cotizacion->datos_paciente)
+        @php
+            $datos = $cotizacion->datos_paciente ?? [];
+        @endphp
+
         <div class="card-body border-top pt-3">
-            <h6 class="fw-bold text-danger mb-3 small"><i class="bx bx-lock-alt me-1"></i>Datos confidenciales del paciente</h6>
+            <h6 class="fw-bold text-danger mb-3 small">
+                <i class="bx bx-lock-alt me-1"></i>Datos confidenciales del paciente
+            </h6>
+
             <dl class="row small mb-0">
                 <dt class="col-5 text-muted">Nombre</dt>
-                <dd class="col-7">{{ $cotizacion->datos_paciente['nombre'] ?? '—' }}</dd>
+                <dd class="col-7">{{ $datos['nombre'] ?? '—' }}</dd>
 
                 <dt class="col-5 text-muted">Fecha de nacimiento</dt>
-                <dd class="col-7">{{ $cotizacion->datos_paciente['nacimiento'] ? \Carbon\Carbon::parse($cotizacion->datos_paciente['nacimiento'])->format('d/m/Y') : '—' }}</dd>
+                <dd class="col-7">
+                    @if(!empty($datos['nacimiento'] ?? null))
+                         {{ \Carbon\Carbon::parse($datos['nacimiento'])->format('d/m/Y') }}
+                    @else
+                          —
+                    @endif
+                </dd>
 
-                @if($cotizacion->datos_paciente['curp'] ?? null)
-                <dt class="col-5 text-muted">CURP</dt>
-                <dd class="col-7">{{ $cotizacion->datos_paciente['curp'] }}</dd>
+                @if($datos['curp'] ?? null)
+                    <dt class="col-5 text-muted">CURP</dt>
+                    <dd class="col-7">{{ $datos['curp'] }}</dd>
                 @endif
 
-                @if($cotizacion->datos_paciente['tipo_sangre'] ?? null)
-                <dt class="col-5 text-muted">Tipo de sangre</dt>
-                <dd class="col-7"><span class="badge bg-label-danger">{{ $cotizacion->datos_paciente['tipo_sangre'] }}</span></dd>
+                @if($datos['tipo_sangre'] ?? null)
+                    <dt class="col-5 text-muted">Tipo de sangre</dt>
+                    <dd class="col-7">
+                        <span class="badge bg-label-danger">{{ $datos['tipo_sangre'] }}</span>
+                    </dd>
                 @endif
 
                 <dt class="col-5 text-muted">Diagnóstico</dt>
-                <dd class="col-7">{{ $cotizacion->datos_paciente['diagnostico'] ?? '—' }}</dd>
+                <dd class="col-7">{{ $datos['diagnostico'] ?? '—' }}</dd>
 
-                @if($cotizacion->datos_paciente['alergias'] ?? null)
-                <dt class="col-5 text-muted">Alergias</dt>
-                <dd class="col-7">{{ $cotizacion->datos_paciente['alergias'] }}</dd>
+                @if($datos['alergias'] ?? null)
+                    <dt class="col-5 text-muted">Alergias</dt>
+                    <dd class="col-7">{{ $datos['alergias'] }}</dd>
                 @endif
 
-                @if($cotizacion->datos_paciente['medico'] ?? null)
-                <dt class="col-5 text-muted">Médico tratante</dt>
-                <dd class="col-7">{{ $cotizacion->datos_paciente['medico'] }}</dd>
+                @if($datos['medico'] ?? null)
+                    <dt class="col-5 text-muted">Médico tratante</dt>
+                    <dd class="col-7">{{ $datos['medico'] }}</dd>
                 @endif
+
+                <dt class="col-5 text-muted">Observaciones médicas</dt>
+                <dd class="col-7">{{ $datos['observaciones_medicas'] ?? '—' }}</dd>
+
+                <dt class="col-5 text-muted">Padecimientos</dt>
+                <dd class="col-7">
+                    @if(!empty($datos['padecimientos'] ?? []))
+                        <ul class="mb-0">
+                            @foreach($datos['padecimientos'] as $p)
+                                <li>{{ $p }}</li>
+                            @endforeach
+                        </ul>
+                    @else
+                        —
+                    @endif
+                </dd>
+
+                <dt class="col-5 text-muted">Costo extra por padecimientos</dt>
+                <dd class="col-7">
+                    @if(!empty($datos['costo_extra_padecimientos'] ?? null))
+                        ${{ number_format($datos['costo_extra_padecimientos'], 2) }}
+                    @else
+                        —
+                    @endif
+                </dd>
             </dl>
         </div>
-        @endif
 
         @if($cotizacion->decision_cliente)
         <div class="card-body border-top pt-3">
@@ -524,17 +555,11 @@
 <div class="card mb-4">
     <div class="card-header bg-label-primary">
         <h6 class="mb-0"><i class="bx bx-injection me-1"></i>5. Insumos especiales
-            @if($cotizacion->padecimientos_paciente)
-                <span class="badge bg-warning text-dark ms-1"><i class="bx bx-plus-medical me-1"></i>Revisar padecimientos</span>
-            @endif
+
         </h6>
     </div>
     <div class="card-body">
-        @if($cotizacion->padecimientos_paciente)
-        <div class="alert alert-warning py-2 mb-3 small">
-            <strong>Padecimientos del paciente:</strong> {{ $cotizacion->padecimientos_paciente }}
-        </div>
-        @endif
+
 
         @if($insumos->isEmpty())
             <div class="alert alert-info mb-0">No hay insumos registrados en el catálogo.</div>

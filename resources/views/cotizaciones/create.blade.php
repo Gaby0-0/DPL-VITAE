@@ -123,15 +123,15 @@
                                 @error('nombre')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                             {{-- poner validacion de solo 10 digitos --}}
-                            <div class="col-md-6"> //dcdc
+                            <div class="col-md-6">
                                 <label class="form-label">Teléfono <span class="text-danger">*</span></label>
                                 <input type="text" 
                                 name="telefono" 
                                 class="form-control @error('telefono') is-invalid @enderror"
                                 value="{{ old('telefono') }}"
                                 placeholder="Ej. 9511234567"
-                                pattern="[0-9]{15}"
-                                maxlength="15"
+                                pattern="[0-9]{10}"
+                                maxlength="10"
                                 required>
                                 @error('telefono')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
@@ -150,18 +150,20 @@
                             <span class="step-badge">2</span>
                             <h5 class="mb-0 fw-semibold">Tipo de Servicio</h5>
                         </div>
+
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
                                 <label class="form-label">Tipo de servicio <span class="text-danger">*</span></label>
                                 <select id="tipo_servicio" name="tipo_servicio"
                                     class="form-select @error('tipo_servicio') is-invalid @enderror" required>
                                     <option value="">— Selecciona —</option>
-                                    <option value="Traslado"   {{ old('tipo_servicio') == 'Traslado'   ? 'selected' : '' }}>Traslado de paciente</option>
-                                    <option value="Evento"     {{ old('tipo_servicio') == 'Evento'     ? 'selected' : '' }}>Cobertura de evento</option>
-                                    <option value="Otro"       {{ old('tipo_servicio') == 'Otro'       ? 'selected' : '' }}>Otro</option>
+                                    <option value="Traslado" {{ old('tipo_servicio') == 'Traslado' ? 'selected' : '' }}>Traslado de paciente</option>
+                                    <option value="Evento" {{ old('tipo_servicio') == 'Evento' ? 'selected' : '' }}>Cobertura de evento</option>
+                                    <option value="Otro" {{ old('tipo_servicio') == 'Otro' ? 'selected' : '' }}>Otro</option>
                                 </select>
                                 @error('tipo_servicio')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
+
                             <div class="col-md-6">
                                 <label class="form-label">Fecha requerida</label>
                                 <input type="date" name="fecha_requerida"
@@ -169,7 +171,7 @@
                                     value="{{ old('fecha_requerida') }}" min="{{ date('Y-m-d') }}">
                                 @error('fecha_requerida')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
-                            {{-- solo si es evento u otro --}}
+
                             <div class="col-md-6">
                                 <label class="form-label">Número aproximado de personas</label>
                                 <input type="number" name="personas"
@@ -177,6 +179,7 @@
                                     value="{{ old('personas') }}" min="1" placeholder="Ej. 50">
                                 @error('personas')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
+
                             <div class="col-12">
                                 <label class="form-label">Descripción adicional</label>
                                 <textarea name="descripcion" rows="3"
@@ -185,20 +188,91 @@
                                 @error('descripcion')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
 
-                            {{-- padecimientos, solo traslado --}}
                             <div id="wrap-padecimientos" class="col-12 d-none">
-                                <div class="alert alert-warning py-2 mb-2">
-                                    <i class="bx bx-plus-medical me-1"></i>
-                                    <strong>Información médica del paciente</strong> — Nos ayuda a preparar la ambulancia adecuada.
+                                <div class="card mt-4">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Datos del paciente</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Nombre del paciente</label>
+                                                <input type="text" name="nombre_paciente" class="form-control" value="{{ old('nombre_paciente') }}">
+                                            </div>
+
+                                            <div class="col-md-3">
+                                                <label class="form-label">Fecha de nacimiento</label>
+                                                <input type="date" name="nacimiento" class="form-control" value="{{ old('nacimiento') }}">
+                                            </div>
+
+                                            <div class="col-md-3">
+                                                <label class="form-label">Tipo de sangre</label>
+                                                <input type="text" name="tipo_sangre" class="form-control" value="{{ old('tipo_sangre') }}" placeholder="Ej. O+">
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label">CURP</label>
+                                                <input type="text" name="curp" class="form-control" value="{{ old('curp') }}" maxlength="18">
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label">Médico tratante</label>
+                                                <input type="text" name="medico" class="form-control" value="{{ old('medico') }}">
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label">Diagnóstico</label>
+                                                <textarea name="diagnostico" class="form-control" rows="3">{{ old('diagnostico') }}</textarea>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label">Alergias</label>
+                                                <textarea name="alergias" class="form-control" rows="3">{{ old('alergias') }}</textarea>
+                                            </div>
+
+                                            <div class="col-12">
+                                                <label class="form-label">Observaciones médicas adicionales</label>
+                                                <textarea name="observaciones_medicas" class="form-control" rows="3">{{ old('observaciones_medicas') }}</textarea>
+                                            </div>
+
+                                            <div class="col-12">
+                                                <label class="form-label fw-semibold">Padecimientos del paciente</label>
+                                                <div class="row">
+                                                    @forelse($padecimientos as $padecimiento)
+                                                        <div class="col-md-6 mb-3">
+                                                            <label class="border rounded p-3 w-100 h-100">
+                                                                <div class="d-flex align-items-start gap-2">
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        name="padecimientos[]"
+                                                                        value="{{ $padecimiento->id_padecimiento }}"
+                                                                        class="form-check-input mt-1"
+                                                                        {{ in_array($padecimiento->id_padecimiento, old('padecimientos', [])) ? 'checked' : '' }}
+                                                                    >
+                                                                    <div>
+                                                                        <div class="fw-semibold">{{ $padecimiento->nombre_padecimiento }}</div>
+                                                                        <small class="text-muted">
+                                                                            Riesgo: {{ $padecimiento->nivel_riesgo }}
+                                                                        </small>
+                                                                        <div class="text-primary fw-semibold">
+                                                                            + ${{ number_format($padecimiento->costo_extra, 2) }}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </label>
+                                                        </div>
+                                                    @empty
+                                                        <div class="col-12">
+                                                            <p class="text-muted mb-0">No hay padecimientos registrados.</p>
+                                                        </div>
+                                                    @endforelse
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <label class="form-label">Padecimientos o condiciones del paciente</label>
-                                <textarea name="padecimientos_paciente" rows="3"
-                                    class="form-control @error('padecimientos_paciente') is-invalid @enderror"
-                                    placeholder="Ej. Diabetes, hipertensión, fractura de cadera, requiere oxígeno...">{{ old('padecimientos_paciente') }}</textarea>
-                                <small class="text-muted">El nombre del paciente se solicitará al confirmar el servicio.</small>
-                                @error('padecimientos_paciente')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
-                        </div>
+                        </div>                       
 
                         <hr class="my-4">
 
