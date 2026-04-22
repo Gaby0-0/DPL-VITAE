@@ -10,6 +10,62 @@ use Illuminate\Support\Facades\Hash;
 
 class ClienteController extends Controller
 {
+    // ── Normaliza nombres antes de validar ──────────────────────────────────
+    private function normalizarNombres(Request $request): void
+    {
+        $request->merge([
+            'nombre'     => ucwords(strtolower(trim($request->nombre))),
+            'ap_paterno' => ucwords(strtolower(trim($request->ap_paterno))),
+            'ap_materno' => $request->ap_materno
+                                ? ucwords(strtolower(trim($request->ap_materno)))
+                                : null,
+        ]);
+    }
+
+    private function rulesPersonales(): array
+    {
+        return [
+            'nombre'     => ['required', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$/'],
+            'ap_paterno' => ['required', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$/'],
+            'ap_materno' => ['nullable', 'string', 'max:100', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$/'],
+            'telefono'   => ['nullable', 'string', 'max:15', 'regex:/^[0-9\s\-\+\(\)]+$/'],
+        ];
+    }
+
+    private function messagesPersonales(): array
+    {
+        return [
+            'nombre.required'     => 'El nombre es obligatorio.',
+            'nombre.max'          => 'El nombre no puede superar 100 caracteres.',
+            'nombre.regex'        => 'El nombre solo puede contener letras y espacios.',
+
+            'ap_paterno.required' => 'El apellido paterno es obligatorio.',
+            'ap_paterno.max'      => 'El apellido paterno no puede superar 100 caracteres.',
+            'ap_paterno.regex'    => 'El apellido paterno solo puede contener letras y espacios.',
+
+            'ap_materno.max'      => 'El apellido materno no puede superar 100 caracteres.',
+            'ap_materno.regex'    => 'El apellido materno solo puede contener letras y espacios.',
+
+            'telefono.max'        => 'El teléfono no puede superar 15 caracteres.',
+            'telefono.regex'      => 'El teléfono solo puede contener números, espacios, guiones y paréntesis.',
+        ];
+    }
+
+    private function messagesAcceso(): array
+    {
+        return [
+            'email.required'     => 'El correo electrónico es obligatorio.',
+            'email.email'        => 'Ingresa un correo electrónico válido.',
+            'email.max'          => 'El correo no puede superar 150 caracteres.',
+            'email.unique'       => 'Este correo electrónico ya está registrado.',
+
+            'password.required'  => 'La contraseña es obligatoria.',
+            'password.min'       => 'La contraseña debe tener al menos 8 caracteres.',
+            'password.confirmed' => 'Las contraseñas no coinciden.',
+        ];
+    }
+
+    // ── CRUD ────────────────────────────────────────────────────────────────
     public function index()
     {
         $clientes = Cliente::with('usuario')->paginate(8);
@@ -23,14 +79,15 @@ class ClienteController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'nombre'      => 'required|string|max:100',
-            'ap_paterno'  => 'required|string|max:100',
-            'ap_materno'  => 'nullable|string|max:100',
-            'telefono'    => 'nullable|string|max:15',
-            'email'       => 'required|email|max:150|unique:users,email',
-            'password'    => 'required|string|min:8|confirmed',
-        ]);
+        $this->normalizarNombres($request);
+
+        $request->validate(
+            array_merge($this->rulesPersonales(), [
+                'email'    => ['required', 'email', 'max:150', 'unique:users,email'],
+                'password' => ['required', 'string', 'min:8', 'confirmed'],
+            ]),
+            array_merge($this->messagesPersonales(), $this->messagesAcceso())
+        );
 
         DB::transaction(function () use ($request) {
             $user = User::create([
@@ -62,14 +119,15 @@ class ClienteController extends Controller
 
     public function update(Request $request, Cliente $cliente)
     {
-        $request->validate([
-            'nombre'     => 'required|string|max:100',
-            'ap_paterno' => 'required|string|max:100',
-            'ap_materno' => 'nullable|string|max:100',
-            'telefono'   => 'nullable|string|max:20',
-            'email'      => 'required|email|max:150|unique:users,email,' . $cliente->id_usuario . ',id_usuario',
-            'password'   => 'nullable|string|min:8|confirmed',
-        ]);
+        $this->normalizarNombres($request);
+
+        $request->validate(
+            array_merge($this->rulesPersonales(), [
+                'email'    => ['required', 'email', 'max:150', 'unique:users,email,' . $cliente->id_usuario . ',id_usuario'],
+                'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            ]),
+            array_merge($this->messagesPersonales(), $this->messagesAcceso())
+        );
 
         DB::transaction(function () use ($request, $cliente) {
             $userData = [

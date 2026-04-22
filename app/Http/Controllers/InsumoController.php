@@ -7,6 +7,27 @@ use Illuminate\Http\Request;
 
 class InsumoController extends Controller
 {
+    private function rules(): array
+    {
+        return [
+            'nombre_insumo' => ['required', 'string', 'max:150', 'regex:/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$/'],
+            'costo_unidad'  => ['required', 'numeric', 'min:0'],
+        ];
+    }
+
+    private function messages(): array
+    {
+        return [
+            'nombre_insumo.required' => 'El nombre del insumo es obligatorio.',
+            'nombre_insumo.max'      => 'El nombre no puede superar 150 caracteres.',
+            'nombre_insumo.regex'    => 'El nombre solo puede contener letras y espacios.',
+
+            'costo_unidad.required'  => 'El costo por unidad es obligatorio.',
+            'costo_unidad.numeric'   => 'El costo debe ser un número.',
+            'costo_unidad.min'       => 'El costo no puede ser negativo.',
+        ];
+    }
+
     public function index()
     {
         $insumos = Insumo::paginate(8);
@@ -20,12 +41,15 @@ class InsumoController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'nombre_insumo' => 'required|string|max:255',
-            'costo_unidad' => 'required|numeric',
+        $request->merge([
+            'nombre_insumo' => ucwords(strtolower(trim($request->nombre_insumo))),
         ]);
+
+        $data = $request->validate($this->rules(), $this->messages());
+
         Insumo::create($data);
-        return redirect()->route('insumos.index')->with('success', 'Insumo creado.');
+
+        return redirect()->route('insumos.index')->with('success', 'Insumo creado correctamente.');
     }
 
     public function show(Insumo $insumo)
@@ -40,17 +64,20 @@ class InsumoController extends Controller
 
     public function update(Request $request, Insumo $insumo)
     {
-        $data = $request->validate([
-            'nombre_insumo' => 'required|string|max:255',
-            'costo_unidad' => 'required|numeric',
+        $request->merge([
+            'nombre_insumo' => ucwords(strtolower(trim($request->nombre_insumo))),
         ]);
+
+        $data = $request->validate($this->rules(), $this->messages());
+
         $insumo->update($data);
-        return redirect()->route('insumos.index')->with('success', 'Insumo actualizado.');
+
+        return redirect()->route('insumos.index')->with('success', 'Insumo actualizado correctamente.');
     }
 
     public function destroy(Insumo $insumo)
     {
         $insumo->delete();
-        return redirect()->route('insumos.index')->with('success', 'Insumo eliminado.');
+        return redirect()->route('insumos.index')->with('success', 'Insumo eliminado correctamente.');
     }
 }

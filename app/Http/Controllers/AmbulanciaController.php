@@ -8,6 +8,32 @@ use Illuminate\Http\Request;
 
 class AmbulanciaController extends Controller
 {
+    const ESTADOS = ['Disponible', 'En servicio', 'En mantenimiento'];
+
+    private function rules(): array
+    {
+        return [
+            'placa'              => ['required', 'string', 'max:20', 'regex:/^[A-Z0-9\-]+$/'],
+            'estado'             => ['required', 'in:Disponible,En servicio,En mantenimiento'],
+            'id_tipo_ambulancia' => ['required', 'exists:tipo_ambulancia,id_tipo_ambulancia'],
+        ];
+    }
+
+    private function messages(): array
+    {
+        return [
+            'placa.required'              => 'La placa es obligatoria.',
+            'placa.max'                   => 'La placa no puede superar 20 caracteres.',
+            'placa.regex'                 => 'La placa solo puede contener letras mayúsculas, números y guiones.',
+
+            'estado.required'             => 'El estado es obligatorio.',
+            'estado.in'                   => 'El estado seleccionado no es válido.',
+
+            'id_tipo_ambulancia.required' => 'Debes seleccionar un tipo de ambulancia.',
+            'id_tipo_ambulancia.exists'   => 'El tipo de ambulancia seleccionado no es válido.',
+        ];
+    }
+
     public function index()
     {
         $ambulancias = Ambulancia::with(['tipo'])->paginate(8);
@@ -16,19 +42,23 @@ class AmbulanciaController extends Controller
 
     public function create()
     {
-        $tipos = TipoAmbulancia::all();
-        return view('ambulancias.create', compact('tipos'));
+        $tipos   = TipoAmbulancia::all();
+        $estados = self::ESTADOS;
+        return view('ambulancias.create', compact('tipos', 'estados'));
     }
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'placa'              => 'required|string|max:20',
-            'estado'             => 'required|in:Disponible,En servicio,En mantenimiento',
-            'id_tipo_ambulancia' => 'required|exists:tipo_ambulancia,id_tipo_ambulancia',
+        // Normalizar placa a mayúsculas antes de validar
+        $request->merge([
+            'placa' => strtoupper(trim($request->placa)),
         ]);
+
+        $data = $request->validate($this->rules(), $this->messages());
+
         Ambulancia::create($data);
-        return redirect()->route('ambulancias.index')->with('success', 'Ambulancia creada.');
+
+        return redirect()->route('ambulancias.index')->with('success', 'Ambulancia creada correctamente.');
     }
 
     public function show(Ambulancia $ambulancia)
@@ -39,24 +69,28 @@ class AmbulanciaController extends Controller
 
     public function edit(Ambulancia $ambulancia)
     {
-        $tipos = TipoAmbulancia::all();
-        return view('ambulancias.edit', compact('ambulancia', 'tipos'));
+        $tipos   = TipoAmbulancia::all();
+        $estados = self::ESTADOS;
+        return view('ambulancias.edit', compact('ambulancia', 'tipos', 'estados'));
     }
 
     public function update(Request $request, Ambulancia $ambulancia)
     {
-        $data = $request->validate([
-            'placa'              => 'required|string|max:20',
-            'estado'             => 'required|in:Disponible,En servicio,En mantenimiento',
-            'id_tipo_ambulancia' => 'required|exists:tipo_ambulancia,id_tipo_ambulancia',
+        // Normalizar placa a mayúsculas antes de validar
+        $request->merge([
+            'placa' => strtoupper(trim($request->placa)),
         ]);
+
+        $data = $request->validate($this->rules(), $this->messages());
+
         $ambulancia->update($data);
-        return redirect()->route('ambulancias.index')->with('success', 'Ambulancia actualizada.');
+
+        return redirect()->route('ambulancias.index')->with('success', 'Ambulancia actualizada correctamente.');
     }
 
     public function destroy(Ambulancia $ambulancia)
     {
         $ambulancia->delete();
-        return redirect()->route('ambulancias.index')->with('success', 'Ambulancia eliminada.');
+        return redirect()->route('ambulancias.index')->with('success', 'Ambulancia eliminada correctamente.');
     }
 }
