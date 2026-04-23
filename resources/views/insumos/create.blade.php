@@ -34,6 +34,7 @@
                             value="{{ old('nombre_insumo') }}"
                             placeholder="Ej: Oxígeno, Vendas, Guantes"
                             style="text-transform: capitalize"
+                            data-filter="solo-letras"
                             maxlength="150"
                             autofocus
                         >
@@ -55,6 +56,7 @@
                                 class="form-control @error('costo_unidad') is-invalid @enderror"
                                 value="{{ old('costo_unidad') }}"
                                 placeholder="0.00"
+                                data-filter="decimal"
                             >
                             <span class="input-group-text">MXN</span>
                             @error('costo_unidad')

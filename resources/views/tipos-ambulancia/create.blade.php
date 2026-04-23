@@ -34,6 +34,7 @@
                             value="{{ old('nombre_tipo') }}"
                             placeholder="Ej: Básica, Avanzada"
                             style="text-transform: capitalize"
+                            data-filter="solo-letras"
                             maxlength="100"
                             autofocus
                         >
@@ -55,6 +56,7 @@
                                 class="form-control @error('costo_base') is-invalid @enderror"
                                 value="{{ old('costo_base', 0) }}"
                                 placeholder="0.00"
+                                data-filter="decimal"
                             >
                             <span class="input-group-text">MXN</span>
                             @error('costo_base')

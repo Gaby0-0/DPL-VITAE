@@ -37,6 +37,7 @@
                             value="{{ old('nombre') }}"
                             placeholder="Ej: Juan"
                             style="text-transform: capitalize"
+                            data-filter="solo-letras"
                             autofocus
                         >
                         @error('nombre')
@@ -53,6 +54,7 @@
                             value="{{ old('ap_paterno') }}"
                             placeholder="Ej: García"
                             style="text-transform: capitalize"
+                            data-filter="solo-letras"
                         >
                         @error('ap_paterno')
                             <div class="invalid-feedback"><i class="bx bx-error-circle me-1"></i>{{ $message }}</div>
@@ -70,6 +72,7 @@
                             value="{{ old('ap_materno') }}"
                             placeholder="Ej: López"
                             style="text-transform: capitalize"
+                            data-filter="solo-letras"
                         >
                         @error('ap_materno')
                             <div class="invalid-feedback"><i class="bx bx-error-circle me-1"></i>{{ $message }}</div>
@@ -86,6 +89,7 @@
                             class="form-control @error('telefono') is-invalid @enderror"
                             value="{{ old('telefono') }}"
                             placeholder="Ej: 951 123 4567"
+                            data-filter="telefono"
                             maxlength="15"
                         >
                         @error('telefono')
@@ -107,6 +111,7 @@
                             class="form-control @error('email') is-invalid @enderror"
                             value="{{ old('email') }}"
                             placeholder="correo@ejemplo.com"
+                            data-filter="email"
                         >
                         @error('email')
                             <div class="invalid-feedback"><i class="bx bx-error-circle me-1"></i>{{ $message }}</div>

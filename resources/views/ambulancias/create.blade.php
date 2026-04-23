@@ -35,6 +35,7 @@
                             value="{{ old('placa') }}"
                             placeholder="Ej: AMB-001"
                             style="text-transform: uppercase"
+                            data-filter="placa"
                             maxlength="20"
                             autofocus
                         >

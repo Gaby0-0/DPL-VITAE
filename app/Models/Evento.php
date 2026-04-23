@@ -12,12 +12,13 @@ class Evento extends Model
 
     protected $fillable = [
         'id_servicio',
+        'tipo',
         'duracion',
-        'personas'
+        'personas',
     ];
 
     public function servicio()
     {
-        return $this->belongsTo(Servicio::class,'id_servicio');
+        return $this->belongsTo(Servicio::class, 'id_servicio');
     }
 }

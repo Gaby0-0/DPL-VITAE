@@ -44,6 +44,7 @@
                                 value="{{ old('nombre') }}"
                                 placeholder="Nombre(s)"
                                 style="text-transform: capitalize"
+                                data-filter="solo-letras"
                                 autofocus
                             >
                             @error('nombre')
@@ -60,6 +61,7 @@
                                 value="{{ old('ap_paterno') }}"
                                 placeholder="Apellido paterno"
                                 style="text-transform: capitalize"
+                                data-filter="solo-letras"
                             >
                             @error('ap_paterno')
                                 <div class="invalid-feedback"><i class="bx bx-error-circle me-1"></i>{{ $message }}</div>
@@ -77,6 +79,7 @@
                                 value="{{ old('ap_materno') }}"
                                 placeholder="Apellido materno"
                                 style="text-transform: capitalize"
+                                data-filter="solo-letras"
                             >
                             @error('ap_materno')
                                 <div class="invalid-feedback"><i class="bx bx-error-circle me-1"></i>{{ $message }}</div>
@@ -101,6 +104,7 @@
                                 class="form-control @error('email') is-invalid @enderror"
                                 value="{{ old('email') }}"
                                 placeholder="correo@ejemplo.com"
+                                data-filter="email"
                             >
                             @error('email')
                                 <div class="invalid-feedback"><i class="bx bx-error-circle me-1"></i>{{ $message }}</div>
@@ -161,6 +165,7 @@
                                 class="form-control @error('salario_hora') is-invalid @enderror"
                                 value="{{ old('salario_hora') }}"
                                 placeholder="0.00"
+                                data-filter="decimal"
                             >
                             <span class="input-group-text">MXN/hr</span>
                             @error('salario_hora')

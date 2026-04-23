@@ -17,7 +17,7 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Servicio</th>
+                        <th>Tipo</th>
                         <th>Duración</th>
                         <th>Personas</th>
                         <th>Acciones</th>
@@ -27,7 +27,7 @@
                     @forelse($eventos as $evento)
                     <tr>
                         <td>{{ $evento->id_evento }}</td>
-                        <td>{{ $evento->id_servicio }}</td>
+                        <td>{{ $evento->servicio->tipo ?? '—'}}</td>
                         <td>{{ $evento->duracion }}</td>
                         <td>{{ $evento->personas }}</td>
                         <td>
