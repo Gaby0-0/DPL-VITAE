@@ -5,6 +5,23 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
+
+    <!--Filtros-->
+    <form method="GET" action="{{ url()->current() }}">
+        
+
+    <button type="submit">Filtrar</button>
+
+        <br>
+    <!-- filtro por rango de precios-->>
+    <input type="number" name="costo_min" placeholder="Costo mínimo"
+        value="{{ request('costo_min') }}">
+
+    <input type="number" name="costo_max" placeholder="Costo máximo"
+        value="{{ request('costo_max') }}">
+
+</form> 
+
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Insumos</h5>

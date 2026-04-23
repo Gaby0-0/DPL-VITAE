@@ -28,9 +28,17 @@ class InsumoController extends Controller
         ];
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $insumos = Insumo::paginate(8);
+        $insumos = Insumo::query()
+        // filtro por rango de costo
+        ->when($request->costo_min, function ($q, $costo) {
+            $q->where('costo_unidad', '>=', $costo);
+        })
+        ->when($request->costo_max, function ($q, $costo) {
+            $q->where('costo_unidad', '<=', $costo);
+        })
+        ->paginate(8);
         return view('insumos.index', compact('insumos'));
     }
 
