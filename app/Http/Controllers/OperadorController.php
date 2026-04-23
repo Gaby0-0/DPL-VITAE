@@ -66,12 +66,28 @@ class OperadorController extends Controller
     }
 
     // ── CRUD ────────────────────────────────────────────────────────────────
-    public function index()
+    public function index(Request $request)
     {
         $operadores = Operador::with('usuario')
-            ->withCount(['servicios as en_servicio' => fn($q) => $q->where('estado', 'Activo')])
-            ->paginate(8);
-        return view('operadores.index', compact('operadores'));
+        ->when($request->estado, function ($q, $estado) {
+            $q->where('estado', $estado);
+        })
+                // filtro por rango de salario
+        ->when($request->salario_min, function ($q, $salario_min) {
+            $q->where('salario_hora', '>=', $salario_min);
+        })
+        ->when($request->salario_max, function ($q, $salario_max) {
+            $q->where('salario_hora', '<=', $salario_max);
+        })
+        ->withCount(['servicios as en_servicio' => fn($q) => $q->where('estado', 'Activo')])
+        ->paginate(8);
+
+        $estados = [
+            'Disponible' => 'Disponible',
+            'No disponible' => 'No disponible'
+        ];
+
+        return view('operadores.index', compact('operadores', 'estados'));
     }
 
     public function create()

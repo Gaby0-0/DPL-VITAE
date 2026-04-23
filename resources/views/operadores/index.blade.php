@@ -5,6 +5,33 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
+
+<form method="GET" action="{{ url()->current() }}">
+        
+
+    <button type="submit">Filtrar</button>
+
+    <!-- filtro nivel riesgo -->
+    <select name="estado">
+        <option value="">Todos los estados</option>
+        @foreach ($estados as $value => $label)
+            <option value="{{ $value }}"
+                {{ request('estado') == $value ? 'selected' : '' }}>
+                {{ $label }}
+            </option>
+        @endforeach
+    </select>
+
+        <br>
+    <!-- filtro por rango de sueldos-->
+    <input type="number" name="salario_min" placeholder="salario mínimo"
+        value="{{ request('salario_hora') }}">
+
+    <input type="number" name="salario_max" placeholder="salario máximo"
+        value="{{ request('salario_hora') }}">
+
+</form>
+
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Operadores</h5>
