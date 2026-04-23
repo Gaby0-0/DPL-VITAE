@@ -5,6 +5,29 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
+
+    <form method="GET" action="{{ url()->current() }}">
+        
+
+    <button type="submit">Filtrar</button>
+<select name="estado">
+    <option value="">Todos</option>
+    <option value="Disponible">Disponible</option>
+    <option value="No disponible">No disponible</option>
+</select>
+
+<select name="tipo">
+    <option value="">Todos los tipos</option>
+    @foreach ($tipos as $tipo)
+        <option value="{{ $tipo->id_tipo_ambulancia }}"
+            {{ request('tipo') == $tipo->id_tipo_ambulancia ? 'selected' : '' }}>
+            {{ $tipo->nombre_tipo }}
+        </option>
+    @endforeach
+</select>
+
+</form>
+
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Ambulancias</h5>

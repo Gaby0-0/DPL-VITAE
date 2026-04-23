@@ -34,10 +34,20 @@ class AmbulanciaController extends Controller
         ];
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $ambulancias = Ambulancia::with(['tipo'])->paginate(8);
-        return view('ambulancias.index', compact('ambulancias'));
+        $tipos = TipoAmbulancia::all();
+
+        $ambulancias = Ambulancia::with('tipo')
+            // filtro por estado
+        ->when($request->estado, function ($q, $estado) {
+            $q->where('estado', $estado);
+            })
+        ->when($request->tipo, function ($q, $tipo) {
+            $q->where('id_tipo_ambulancia', $tipo);
+        })
+        ->paginate(8);
+        return view('ambulancias.index', compact('ambulancias', 'tipos'));
     }
 
     public function create()
