@@ -5,6 +5,33 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
+
+<form method="GET" action="{{ url()->current() }}">
+        
+
+    <button type="submit">Filtrar</button>
+
+    <!-- filtro nivel riesgo -->
+    <select name="nivel_riesgo">
+        <option value="">Todos los niveles</option>
+        @foreach ($niveles as $value => $label)
+            <option value="{{ $value }}"
+                {{ request('nivel_riesgo') == $value ? 'selected' : '' }}>
+                {{ $label }}
+            </option>
+        @endforeach
+    </select>
+
+        <br>
+    <!-- filtro por rango de precios-->>
+    <input type="number" name="costo_min" placeholder="Costo mínimo"
+        value="{{ request('costo_min') }}">
+
+    <input type="number" name="costo_max" placeholder="Costo máximo"
+        value="{{ request('costo_max') }}">
+
+</form>
+
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Padecimientos</h5>

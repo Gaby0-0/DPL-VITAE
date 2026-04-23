@@ -34,10 +34,28 @@ class PadecimientoController extends Controller
         ];
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $padecimientos = Padecimiento::paginate(8);
-        return view('padecimientos.index', compact('padecimientos'));
+        $padecimientos = Padecimiento::query()
+        ->when($request->nivel_riesgo, function ($q, $nivel_riesgo) {
+            $q->where('nivel_riesgo', $nivel_riesgo);
+        })
+                // filtro por rango de costo
+        ->when($request->costo_min, function ($q, $costo) {
+            $q->where('costo_extra', '>=', $costo);
+        })
+        ->when($request->costo_max, function ($q, $costo) {
+            $q->where('costo_extra', '<=', $costo);
+        })
+        ->paginate(8);
+
+        $niveles = [
+            'Alto' => 'Alto',
+            'Medio' => 'Medio',
+            'Bajo' => 'Bajo'
+        ];
+
+        return view('padecimientos.index', compact('padecimientos', 'niveles'));
     }
 
     public function create()
