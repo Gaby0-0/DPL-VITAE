@@ -5,6 +5,75 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
+
+    <!--Filtros-->
+    <form method="GET" action="{{ url()->current() }}">
+        
+
+    <button type="submit">Filtrar</button>
+
+    <!-- filtro tipo -->
+    <select name="tipo">
+            <option value="">Todos los tipos</option>
+            @foreach ($tipos as $value => $label)
+                <option value="{{ $value }}" {{ request('tipo') == $value ? 'selected' : '' }}>
+                    {{ $label }}
+                </option>
+            @endforeach
+        </select>
+
+     <!-- filtro estado -->
+    <select name="estado">
+        <option value="">Todos los estados</option>
+            @foreach ($estados as $value => $label)
+                <option value="{{ $value }}" {{ request('estado') == $value ? 'selected' : '' }}>
+                    {{ $label }}
+                </option>
+            @endforeach
+        </select>
+
+     <!-- filtro ambulancia -->
+    <select name="ambulancia">
+        <option value="">Todas las ambulancias</option>
+            @foreach ($ambulancias as $ambulancia)
+                <option value="{{ $ambulancia->id_ambulancia }}"
+                {{ request('ambulancia') == $ambulancia->id_ambulancia ? 'selected' : '' }}>
+                    {{ $ambulancia->placa }}
+                </option>
+            @endforeach
+        </select>
+
+
+        <!-- Filtro por operador -->>
+    <select name="operador">
+        <option value="">Todos los operadores</option>
+        @foreach($operadores as $op)
+            <option value="{{ $op->id_operador }}"
+                {{ request('operador') == $op->id_operador ? 'selected' : '' }}>
+                {{ $op->usuario->name }}
+            </option>
+        @endforeach
+    </select>
+
+    <br>
+
+    <!-- filtro fecha -->
+     <form method="GET" action="{{ url()->current() }}">
+
+    <input type="date" name="fecha_inicio" value="{{ request('fecha_inicio') }}">
+    <input type="date" name="fecha_fin" value="{{ request('fecha_fin') }}">
+
+
+    <br>
+    <!-- filtro por rango de precios-->>
+    <input type="number" name="costo_min" placeholder="Costo mínimo"
+        value="{{ request('costo_min') }}">
+
+    <input type="number" name="costo_max" placeholder="Costo máximo"
+        value="{{ request('costo_max') }}">
+
+</form> 
+
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <div>

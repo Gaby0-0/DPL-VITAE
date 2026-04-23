@@ -37,28 +37,23 @@ class DashboardController extends Controller
             'Otro' => 'Otros'
         ];
 
+        /*
         $estados = [
             'Pendiente' => 'Pendiente',
             'En curso' => 'En curso',
             'Completado' => 'Completado',
             'Cancelado' => 'Cancelado'
+        ]; 
+        */
+
+        $estados = [
+            'Activo' => 'Activo',
+            'Finalizado' => 'Finalizado',
+            'Cancelado' => 'Cancelado',
         ];
 
 
 
         return view('dashboard', compact('servicios', 'tipos', 'estados', 'ambulancias'));
-
-  /*      $query = Servicio::query(); // o el modelo que uses
-        if ($request->filled('tipo')) {
-            $query->where('tipo', $request->tipo);
-        }
-        $servicios = $query->get();
-        $tipos = [
-            'Traslado' => 'Traslados',
-            'Evento' => 'Eventos',
-            'Otro' => 'Otros'
-        ];
-        return view('dashboard', compact('servicios', 'tipos')); /*
-    }*/
 }
 }

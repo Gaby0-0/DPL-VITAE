@@ -11,10 +11,64 @@ use Illuminate\Validation\ValidationException;
 
 class ServicioController extends Controller
 {
-   public function index()
+   public function index(Request $request)
     {
-        $servicios = Servicio::with(['ambulancia', 'cliente.usuario', 'operador.usuario'])->paginate(8);
-        return view('servicios.index', compact('servicios'));
+    $ambulancias = Ambulancia::select('id_ambulancia', 'placa')->get();
+    $operadores = Operador::with('usuario')->get();
+
+    $servicios = Servicio::with(['ambulancia', 'cliente.usuario', 'operador.usuario'])
+        ->when($request->tipo, function ($q, $tipo) {
+            $q->where('tipo', $tipo);
+        })
+        ->when($request->estado, function ($q, $estado) {
+            $q->where('estado', $estado);
+        })
+        ->when($request->ambulancia, function ($q, $ambulancia) {
+            $q->where('id_ambulancia', $ambulancia);
+        })
+        ->when($request->operador, function ($q, $operador) {
+            $q->where('id_operador', $operador);
+        })
+        // filtro por rango de costo
+        ->when($request->costo_min, function ($q, $costo) {
+            $q->where('costo_total', '>=', $costo);
+        })
+        ->when($request->costo_max, function ($q, $costo) {
+            $q->where('costo_total', '<=', $costo);
+        })
+        //filtro por rango de fecha
+        ->when($request->fecha_inicio, function ($q, $fecha) {
+            $q->where('fecha_hora', '>=', $fecha);
+        })
+        ->when($request->fecha_fin, function ($q, $fecha) {
+            $q->where('fecha_hora', '<=', $fecha);
+        })
+        ->paginate(8);
+
+        $tipos = [
+            'Traslado' => 'Traslados',
+            'Evento' => 'Eventos',
+            'Otro' => 'Otros'
+        ];
+
+        /*
+        $estados = [
+            'Pendiente' => 'Pendiente',
+            'En curso' => 'En curso',
+            'Completado' => 'Completado',
+            'Cancelado' => 'Cancelado'
+        ]; 
+        */
+
+        $estados = [
+            'Activo' => 'Activo',
+            'Finalizado' => 'Finalizado',
+            'Cancelado' => 'Cancelado',
+        ];
+
+
+   //     $servicios = Servicio::with(['ambulancia', 'cliente.usuario', 'operador.usuario'])->paginate(8);
+        return view('servicios.index', compact('servicios', 'tipos', 'estados', 'ambulancias', 'operadores'));
     } 
 
     public function create()
