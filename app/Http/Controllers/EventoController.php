@@ -29,7 +29,7 @@ class EventoController extends Controller
         return view('eventos.index', compact('eventos', 'eventos'));
     }
 
-    public function create()
+    /* public function create()
     {
         $servicios = Servicio::all();
         return view('eventos.create', compact('servicios'));
@@ -73,5 +73,5 @@ class EventoController extends Controller
     {
         $evento->delete();
         return redirect()->route('eventos.index')->with('success', 'Evento eliminado.');
-    }
+    } */
 }
