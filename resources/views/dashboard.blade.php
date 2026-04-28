@@ -104,7 +104,7 @@
     <!-- filtro tipo -->
 <div class="col-md-2">
 <label class="form-label text-primary fw-bold" style="font-size: 0.8rem; text-transform: uppercase;"><i class="bx bx-category me-1"></i>Tipo</label>
-    <select name="tipo" class="form-select border-0 shadow-sm">
+    <select name="tipo" class="form-select border-0 shadow-sm" onchange="this.form.submit()">
             <option value="">Todos los tipos</option>
             @foreach ($tipos as $value => $label)
                 <option value="{{ $value }}" {{ request('tipo') == $value ? 'selected' : '' }}>
@@ -117,7 +117,7 @@
      <!-- filtro estado -->
 <div class="col-md-2">
     <label class="form-label text-primary fw-bold" style="font-size: 0.8rem; text-transform: uppercase;"><i class="bx bx-check-circle me-1"></i>Estado</label>
-    <select name="estado" class="form-select border-0 shadow-sm">
+    <select name="estado" class="form-select border-0 shadow-sm" onchange="this.form.submit()">
         <option value="">Todos los estados</option>
             @foreach ($estados as $value => $label)
                 <option value="{{ $value }}" {{ request('estado') == $value ? 'selected' : '' }}>
@@ -129,7 +129,7 @@
      <!-- filtro ambulancia -->
                       <div class="col-md-2">
                     <label class="form-label text-primary fw-bold" style="font-size: 0.8rem; text-transform: uppercase;"><i class="bx bx-ambulance me-1"></i>Ambulancia</label>
-    <select name="ambulancia" class="form-select border-0 shadow-sm">
+    <select name="ambulancia" class="form-select border-0 shadow-sm" onchange="this.form.submit()">
         <option value="">Todas las ambulancias</option>
             @foreach ($ambulancias as $ambulancia)
                 <option value="{{ $ambulancia->id_ambulancia }}"
@@ -156,7 +156,7 @@
                 <!-- Botones -->
                 <div class="col-md-2 d-flex gap-2">
                     <button type="submit" class="btn btn-primary w-100" title="Aplicar Filtros">
-                        <i class="bx bx-filter-alt me-1"></i> Filtrar
+                        <i class="bx bx-filter-alt me-1"></i> Filtrar fecha
                     </button>
                     @if(request()->hasAny(['tipo', 'estado', 'ambulancia', 'fecha_inicio', 'fecha_fin']))
                         <a href="{{ url()->current() }}" class="btn btn-limpiar w-100 shadow-sm" title="Limpiar filtros">
