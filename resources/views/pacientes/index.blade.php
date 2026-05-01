@@ -36,6 +36,18 @@
     <input type="date" name="fecha_fin" value="{{ request('fecha_fin') }}" class="form-control border-0 shadow-sm">
 </div>
 
+ <!-- Botones -->
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary w-100" title="Aplicar Filtros">
+                        <i class="bx bx-filter-alt me-1"></i> Filtrar fecha
+                    </button>
+                    @if(request()->hasAny(['tipo', 'estado', 'ambulancia', 'fecha_inicio', 'fecha_fin']))
+                        <a href="{{ url()->current() }}" class="btn btn-limpiar w-100 shadow-sm" title="Limpiar filtros">
+                            <i class="bx bx-x me-1"></i> Limpiar
+                        </a>
+                    @endif
+                </div>
+
 </div>
 </div>
 </form>
