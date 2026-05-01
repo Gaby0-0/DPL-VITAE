@@ -6,21 +6,25 @@
         </div>
     @endif
 
-    <!--Filtros-->
-    <form method="GET" action="{{ url()->current() }}">
-        
+<!-- Filtros -->
+@vite('resources/css/filtros.css')
+<form method="GET" action="{{ url()->current() }}" class="filtro-form">
 
-    <button type="submit">Filtrar</button>
+    <input type="number"
+           name="costo_min"
+           placeholder="Costo mínimo"
+           value="{{ request('costo_min') }}"
+           class="form-control filtro-input"
+           onchange="this.form.submit()">
 
-        <br>
-    <!-- filtro por rango de precios-->>
-    <input type="number" name="costo_min" placeholder="Costo mínimo"
-        value="{{ request('costo_min') }}">
+    <input type="number"
+           name="costo_max"
+           placeholder="Costo máximo"
+           value="{{ request('costo_max') }}"
+           class="form-control filtro-input"
+           onchange="this.form.submit()">
 
-    <input type="number" name="costo_max" placeholder="Costo máximo"
-        value="{{ request('costo_max') }}">
-
-</form> 
+</form>
 
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
