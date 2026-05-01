@@ -25,7 +25,7 @@
 </div>
 
         <br>
-    <!-- filtro por rango de precios-->>
+    <!-- filtro por rango de precios-->
 <div class="col-md-2">
     <label class="form-label text-primary fw-bold" style="font-size: 0.8rem; text-transform: uppercase;"><i class="bx bx-money me-1"></i>Desde</label>
     <input type="number" name="costo_min" placeholder="Costo mínimo"

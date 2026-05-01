@@ -6,18 +6,44 @@
         </div>
     @endif
 
+    @vite('resources/css/filtros.css')
+    <div class="card filtro-card mb-4 border-0 shadow-sm">
+  <div class="card-body p-3">
+    <form method="GET" action="{{ url()->current() }}" class="row g-3 align-items-end">
 <form method="GET" action="{{ url()->current() }}">
-        
-
-    <button type="submit">Filtrar</button>
 
     <!-- filtro por rango de sueldos-->
+         <div class="col-md-2">
+        <label class="form-label filtro-label">
+            <i class="bx bx-category me-1"></i>Salario mínimo
+        </label>
     <input type="number" name="salario_min" placeholder="salario mínimo"
-        value="{{ request('salario_hora') }}">
+        value="{{ request('salario_hora') }}" class="form-select filtro-input" onchange="this.form.submit()">
+</div>
 
+         <div class="col-md-2">
+        <label class="form-label filtro-label">
+            <i class="bx bx-category me-1"></i>Salario mínimo
+        </label>
     <input type="number" name="salario_max" placeholder="salario máximo"
-        value="{{ request('salario_hora') }}">
+        value="{{ request('salario_hora') }}" class="form-select filtro-input" onchange="this.form.submit()">
+</div>
 
+    <!-- Botones -->
+    <div class="col-md-2 d-flex gap-2">
+        <button type="submit" class="btn btn-primary w-100">
+            <i class="bx bx-filter-alt me-1"></i> Filtrar
+        </button>
+
+        @if(request()->hasAny(['tipo', 'estado', 'ambulancia', 'fecha_inicio', 'fecha_fin']))
+            <a href="{{ url()->current() }}" class="btn btn-limpiar w-100">
+                <i class="bx bx-x me-1"></i> Limpiar
+            </a>
+        @endif
+    </div>
+
+</div>
+</div>
 </form>
 
     <div class="card">

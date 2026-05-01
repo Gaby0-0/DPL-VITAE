@@ -1,0 +1,29 @@
+.filtro-card {
+    background: linear-gradient(
+        135deg,
+        rgba(139, 92, 246, 0.04),
+        rgba(59, 130, 246, 0.04)
+    );
+}
+
+.filtro-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: #0d6efd; /* Bootstrap primary */
+    font-weight: bold;
+}
+
+.filtro-input {
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.btn-limpiar {
+    background-color: #f8f9fa;
+    border: none;
+    color: #333;
+}
+
+.btn-limpiar:hover {
+    background-color: #e2e6ea;
+}
