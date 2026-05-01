@@ -7,13 +7,14 @@
     @endif
 
 <!-- filtros -->
-    <form method="GET" action="{{ url()->current() }}">
-        
-
-    <button type="submit">Filtrar</button>
+<div class="card mb-4 border-0 shadow-sm" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.04), rgba(59, 130, 246, 0.04));">
+  <div class="card-body p-3">
+    <form method="GET" action="{{ url()->current() }}" class="row g-3 align-items-end">
 
     <!-- filtro sexo -->
-    <select name="sexo">
+<div class="col-md-2">
+<label class="form-label text-primary fw-bold" style="font-size: 0.8rem; text-transform: uppercase;"><i class="bx bx-sex me-1"></i>Sexo</label>
+    <select name="sexo" class="form-select border-0 shadow-sm" onchange="this.form.submit()">
             <option value="">Todos los pacientes</option>
             @foreach ($sexos as $value => $label)
                 <option value="{{ $value }}" {{ request('sexo') == $value ? 'selected' : '' }}>
@@ -21,13 +22,22 @@
                 </option>
             @endforeach
         </select>
-
+</div>
         <br>
         
     <!--filtro fechas de nacimiento-->
-    <input type="date" name="fecha_inicio" value="{{ request('fecha_inicio') }}">
-    <input type="date" name="fecha_fin" value="{{ request('fecha_fin') }}">
+    <div class="col-md-2">
+    <label class="form-label text-primary fw-bold" style="font-size: 0.8rem; text-transform: uppercase;"><i class="bx bx-calendar me-1"></i>Desde</label>
+    <input type="date" name="fecha_inicio" value="{{ request('fecha_inicio') }}" class="form-control border-0 shadow-sm">
+</div>
 
+<div class="col-md-2">
+    <label class="form-label text-primary fw-bold" style="font-size: 0.8rem; text-transform: uppercase;"><i class="bx bx-calendar me-1"></i>Hasta</label>
+    <input type="date" name="fecha_fin" value="{{ request('fecha_fin') }}" class="form-control border-0 shadow-sm">
+</div>
+
+</div>
+</div>
 </form>
 
     <div class="card">
