@@ -6,13 +6,14 @@
         </div>
     @endif
 
-<form method="GET" action="{{ url()->current() }}">
-        
-
-    <button type="submit">Filtrar</button>
+<div class="card mb-4 border-0 shadow-sm" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.04), rgba(59, 130, 246, 0.04));">
+  <div class="card-body p-3">
+    <form method="GET" action="{{ url()->current() }}" class="row g-3 align-items-end">
 
     <!-- filtro nivel riesgo -->
-    <select name="nivel_riesgo">
+<div class="col-md-2">
+<label class="form-label text-primary fw-bold" style="font-size: 0.8rem; text-transform: uppercase;"><i class="bx bx-option me-1"></i>Nivel</label>
+    <select name="nivel_riesgo" class="form-select border-0 shadow-sm" onchange="this.form.submit()">
         <option value="">Todos los niveles</option>
         @foreach ($niveles as $value => $label)
             <option value="{{ $value }}"
@@ -21,15 +22,24 @@
             </option>
         @endforeach
     </select>
+</div>
 
         <br>
     <!-- filtro por rango de precios-->>
+<div class="col-md-2">
+    <label class="form-label text-primary fw-bold" style="font-size: 0.8rem; text-transform: uppercase;"><i class="bx bx-money me-1"></i>Desde</label>
     <input type="number" name="costo_min" placeholder="Costo mínimo"
-        value="{{ request('costo_min') }}">
+        value="{{ request('costo_min') }}" class="form-control border-0 shadow-sm" onchange="this.form.submit()">
+</div>
 
-    <input type="number" name="costo_max" placeholder="Costo máximo"
-        value="{{ request('costo_max') }}">
+<div class="col-md-2">
+    <label class="form-label text-primary fw-bold" style="font-size: 0.8rem; text-transform: uppercase;"><i class="bx bx-money me-1"></i>Hasta</label>
+        <input type="number" name="costo_max" placeholder="Costo máximo"
+        value="{{ request('costo_max') }}" class="form-control border-0 shadow-sm" onchange="this.form.submit()">
+</div>
 
+</div>
+</div>
 </form>
 
     <div class="card">
