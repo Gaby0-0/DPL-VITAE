@@ -6,13 +6,14 @@
         </div>
     @endif
 
-<form method="GET" action="{{ url()->current() }}">
-        
+<div class="card mb-4 border-0 shadow-sm" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.04), rgba(59, 130, 246, 0.04));">
+  <div class="card-body p-3">
+    <form method="GET" action="{{ url()->current() }}" class="row g-3 align-items-end">
 
-    <button type="submit">Filtrar</button>
-
-    <!-- filtro nivel riesgo -->
-    <select name="estado">
+    <!-- filtro estado -->
+     <div class="col-md-2">
+<label class="form-label text-primary fw-bold" style="font-size: 0.8rem; text-transform: uppercase;"><i class="bx bx-option me-1"></i>Estado</label>
+    <select name="estado" class="form-control border-0 shadow-sm" onchange="this.form.submit()">
         <option value="">Todos los estados</option>
         @foreach ($estados as $value => $label)
             <option value="{{ $value }}"
@@ -21,15 +22,24 @@
             </option>
         @endforeach
     </select>
-
+</div>
         <br>
     <!-- filtro por rango de sueldos-->
+     <div class="col-md-2">
+    <label class="form-label text-primary fw-bold" style="font-size: 0.8rem; text-transform: uppercase;"><i class="bx bx-money me-1"></i>Desde</label>
     <input type="number" name="salario_min" placeholder="salario mínimo"
-        value="{{ request('salario_hora') }}">
+        value="{{ request('salario_hora') }}" class="form-control border-0 shadow-sm" onchange="this.form.submit()">
+</div>
 
+        <div class="col-md-2">
+    <label class="form-label text-primary fw-bold" style="font-size: 0.8rem; text-transform: uppercase;"><i class="bx bx-money me-1"></i>Hasta</label>
     <input type="number" name="salario_max" placeholder="salario máximo"
-        value="{{ request('salario_hora') }}">
+        value="{{ request('salario_hora') }}" class="form-control border-0 shadow-sm" onchange="this.form.submit()">
+</div>
+        
 
+</div>
+</div>
 </form>
 
     <div class="card">
