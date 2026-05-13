@@ -1,3 +1,4 @@
+
 <x-layouts.app :title="'Historial de Servicios'">
     @if(session('success'))
         <div class="alert alert-success alert-dismissible mb-4" role="alert">
@@ -6,14 +7,18 @@
         </div>
     @endif
 
+    @vite('resources/css/filtros.css')
     <!--Filtros-->
-    <form method="GET" action="{{ url()->current() }}">
-        
+<div class="card filtro-card mb-4 border-0 shadow-sm">
+  <div class="card-body p-3">
+    <form method="GET" action="{{ url()->current() }}" class="row g-3 align-items-end">
 
-    <button type="submit">Filtrar</button>
-
-    <!-- filtro tipo -->
-    <select name="tipo">
+    <!-- Tipo -->
+    <div class="col-md-2">
+        <label class="form-label filtro-label">
+            <i class="bx bx-category me-1"></i>Tipo
+        </label>
+        <select name="tipo" class="form-select filtro-input" onchange="this.form.submit()">
             <option value="">Todos los tipos</option>
             @foreach ($tipos as $value => $label)
                 <option value="{{ $value }}" {{ request('tipo') == $value ? 'selected' : '' }}>
@@ -21,59 +26,104 @@
                 </option>
             @endforeach
         </select>
+    </div>
 
-     <!-- filtro estado -->
-    <select name="estado">
-        <option value="">Todos los estados</option>
+    <!-- Estado -->
+    <div class="col-md-2">
+        <label class="form-label filtro-label">
+            <i class="bx bx-check-circle me-1"></i>Estado
+        </label>
+        <select name="estado" class="form-select filtro-input" onchange="this.form.submit()">
+            <option value="">Todos los estados</option>
             @foreach ($estados as $value => $label)
                 <option value="{{ $value }}" {{ request('estado') == $value ? 'selected' : '' }}>
                     {{ $label }}
                 </option>
             @endforeach
         </select>
+    </div>
 
-     <!-- filtro ambulancia -->
-    <select name="ambulancia">
-        <option value="">Todas las ambulancias</option>
+    <!-- Ambulancia -->
+    <div class="col-md-2">
+        <label class="form-label filtro-label">
+            <i class="bx bx-car me-1"></i>Ambulancia
+        </label>
+        <select name="ambulancia" class="form-select filtro-input" onchange="this.form.submit()">
+            <option value="">Todas las ambulancias</option>
             @foreach ($ambulancias as $ambulancia)
                 <option value="{{ $ambulancia->id_ambulancia }}"
-                {{ request('ambulancia') == $ambulancia->id_ambulancia ? 'selected' : '' }}>
+                    {{ request('ambulancia') == $ambulancia->id_ambulancia ? 'selected' : '' }}>
                     {{ $ambulancia->placa }}
                 </option>
             @endforeach
         </select>
+    </div>
+
+    <!-- Operador -->
+    <div class="col-md-2">
+        <label class="form-label filtro-label">
+            <i class="bx bx-people me-1"></i>Operadores
+        </label>
+        <select name="operador" class="form-select filtro-input" onchange="this.form.submit()">
+            <option value="">Todos los operadores</option>
+            @foreach($operadores as $op)
+                <option value="{{ $op->id_operador }}"
+                    {{ request('operador') == $op->id_operador ? 'selected' : '' }}>
+                    {{ $op->usuario->name }}
+                </option>
+            @endforeach
+        </select>
+    </div>
+
+    <!-- Fecha -->
+    <div class="col-md-2">
+        <label class="form-label filtro-label">
+            <i class="bx bx-calendar me-1"></i>Desde
+        </label>
+        <input type="date" name="fecha_inicio" value="{{ request('fecha_inicio') }}" class="form-control filtro-input">
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label filtro-label">
+            <i class="bx bx-calendar me-1"></i>Hasta
+        </label>
+        <input type="date" name="fecha_fin" value="{{ request('fecha_fin') }}" class="form-control filtro-input">
+    </div>
+
+    <!-- Costos -->
+    <div class="col-md-2">
+        <label class="form-label filtro-label">
+            <i class="bx bx-money me-1"></i>Mínimo
+        </label>
+        <input type="number" name="costo_min" placeholder="Costo mínimo" value="{{ request('costo_min') }}" class="form-control filtro-input">
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label filtro-label">
+            <i class="bx bx-money me-1"></i>Máximo
+        </label>
+        <input type="number" name="costo_max" placeholder="Costo máximo" value="{{ request('costo_max') }}" class="form-control filtro-input">
+    </div>
+
+    <!-- Botones -->
+    <div class="col-md-2 d-flex gap-2">
+        <button type="submit" class="btn btn-primary w-100">
+            <i class="bx bx-filter-alt me-1"></i> Filtrar
+        </button>
+
+        @if(request()->hasAny(['tipo', 'estado', 'ambulancia', 'fecha_inicio', 'fecha_fin']))
+            <a href="{{ url()->current() }}" class="btn btn-limpiar w-100">
+                <i class="bx bx-x me-1"></i> Limpiar
+            </a>
+        @endif
+    </div>
+
+    </form>
+  </div>
+</div>
 
 
-        <!-- Filtro por operador -->>
-    <select name="operador">
-        <option value="">Todos los operadores</option>
-        @foreach($operadores as $op)
-            <option value="{{ $op->id_operador }}"
-                {{ request('operador') == $op->id_operador ? 'selected' : '' }}>
-                {{ $op->usuario->name }}
-            </option>
-        @endforeach
-    </select>
-
-    <br>
-
-    <!-- filtro fecha -->
-     <form method="GET" action="{{ url()->current() }}">
-
-    <input type="date" name="fecha_inicio" value="{{ request('fecha_inicio') }}">
-    <input type="date" name="fecha_fin" value="{{ request('fecha_fin') }}">
-
-
-    <br>
-    <!-- filtro por rango de precios-->>
-    <input type="number" name="costo_min" placeholder="Costo mínimo"
-        value="{{ request('costo_min') }}">
-
-    <input type="number" name="costo_max" placeholder="Costo máximo"
-        value="{{ request('costo_max') }}">
-
-</form> 
-
+<!--Tabla-->
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <div>

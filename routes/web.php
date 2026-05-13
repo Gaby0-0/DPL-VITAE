@@ -72,7 +72,7 @@ Route::middleware(['auth', 'verified', 'es.admin'])->group(function () {
     Route::resource('eventos',           EventoController::class);
     Route::resource('pacientes',         PacienteController::class);
     Route::resource('padecimientos',     PadecimientoController::class);
-    Route::resource('operadores',        OperadorController::class);
+    Route::resource('operadores', OperadorController::class)->parameters(['operadores' => 'operador']);
     Route::resource('paramedicos',       ParamedicoController::class);
     Route::resource('clientes',          ClienteController::class);
     Route::resource('ambulancias',       AmbulanciaController::class);

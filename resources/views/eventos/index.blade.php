@@ -7,28 +7,42 @@
     @endif
 
 <!-- Filtros -->
-     <form method="GET" action="{{ url()->current() }}">
+<div class="card mb-4 border-0 shadow-sm" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.04), rgba(59, 130, 246, 0.04));">
+  <div class="card-body p-3">
+    <form method="GET" action="{{ url()->current() }}" class="row g-3 align-items-end">
 
-    <button type="submit">Filtrar</button>
-
-<br>
-
+    
       <!-- filtro por rango de horas-->>
+       <div class="col-md-2">
+    <label class="form-label text-primary fw-bold" style="font-size: 0.8rem; text-transform: uppercase;"><i class="bx bx-time me-1"></i>Desde</label>
     <input type="number" name="duracion_min" placeholder="Minimo de horas"
-        value="{{ request('duracion_min') }}">
+        value="{{ request('duracion_min') }}" class="form-control border-0 shadow-sm">
+</div>
 
+        <div class="col-md-2">
+    <label class="form-label text-primary fw-bold" style="font-size: 0.8rem; text-transform: uppercase;"><i class="bx bx-time me-1"></i>Hasta</label>
     <input type="number" name="duracion_max" placeholder="Máximo de horas"
-        value="{{ request('duracion_max') }}">
+        value="{{ request('duracion_max') }}" class="form-control border-0 shadow-sm">
+</div>
 
 <br>
 
      <!-- filtro por rango de personas-->>
-    <input type="number" name="personas_min" placeholder="Mínimo de personas"
-        value="{{ request('personas_min') }}">
+<div class="col-md-2">
+    <label class="form-label text-primary fw-bold" style="font-size: 0.8rem; text-transform: uppercase;"><i class="bx bx-person me-1"></i>Desde</label>
+     <input type="number" name="personas_min" placeholder="Mínimo de personas"
+        value="{{ request('personas_min') }}" class="form-control border-0 shadow-sm">
+</div>
 
+        <div class="col-md-2">
+    <label class="form-label text-primary fw-bold" style="font-size: 0.8rem; text-transform: uppercase;"><i class="bx bx-person me-1"></i>Hasta</label>
     <input type="number" name="personas_max" placeholder="Máximo de personas"
-        value="{{ request('personas_max') }}">
+        value="{{ request('personas_max') }}" class="form-control border-0 shadow-sm">
+</div>
 
+
+</div>
+</div>
 </form>
 
 

@@ -6,26 +6,33 @@
         </div>
     @endif
 
-    <form method="GET" action="{{ url()->current() }}">
-        
+@vite('resources/css/filtros.css')
+<div class="card filtro-card mb-4 border-0 shadow-sm">
+  <div class="card-body p-3">
+    <form method="GET" action="{{ url()->current() }}"class="filtro-form">
 
-    <button type="submit">Filtrar</button>
-<select name="estado">
-    <option value="">Todos</option>
-    <option value="Disponible">Disponible</option>
-    <option value="No disponible">No disponible</option>
-</select>
-
-<select name="tipo">
-    <option value="">Todos los tipos</option>
-    @foreach ($tipos as $tipo)
-        <option value="{{ $tipo->id_tipo_ambulancia }}"
-            {{ request('tipo') == $tipo->id_tipo_ambulancia ? 'selected' : '' }}>
-            {{ $tipo->nombre_tipo }}
+    <select name="estado" class="form-select filtro-label">
+        <option value="">Todos</option>
+        <option value="Disponible" {{ request('estado') == 'Disponible' ? 'selected' : '' }}>
+            Disponible
         </option>
-    @endforeach
-</select>
+        <option value="No disponible" {{ request('estado') == 'No disponible' ? 'selected' : '' }}>
+            No disponible
+        </option>
+    </select>
 
+    <select name="tipo" class="form-select filtro-label">
+        <option value="">Todos los tipos</option>
+        @foreach ($tipos as $tipo)
+            <option value="{{ $tipo->id_tipo_ambulancia }}"
+                {{ request('tipo') == $tipo->id_tipo_ambulancia ? 'selected' : '' }}>
+                {{ $tipo->nombre_tipo }}
+            </option>
+        @endforeach
+    </select>
+
+</div>
+</div>
 </form>
 
     <div class="card">
