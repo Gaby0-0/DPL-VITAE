@@ -19,7 +19,7 @@
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Costo Extra <span class="text-danger">*</span></label>
-                        <input type="number" step="0.01" name="costo_extra" class="form-control @error('costo_extra') is-invalid @enderror" value="{{ old('costo_extra', $padecimiento->costo_extra) }}" required>
+                        <input type="number" step="0.01" min="0" name="costo_extra" class="form-control @error('costo_extra') is-invalid @enderror" value="{{ old('costo_extra', $padecimiento->costo_extra) }}" required>
                         @error('costo_extra')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                 </div>

@@ -10,7 +10,7 @@
             <div>
                 <h4 class="mb-0 fw-bold">Editar Operador</h4>
                 <small class="text-muted">
-                    {{ $operador->usuario->nombre }} {{ $operador->usuario->ap_paterno }}
+                    {{ $operador->usuario->nombre }} {{ $operador->usuario ->ap_paterno ?? '—'}} {{ $operador->usuario->ap_materno ?? '—'}}
                 </small>
             </div>
         </div>

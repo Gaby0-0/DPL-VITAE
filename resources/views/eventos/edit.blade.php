@@ -21,12 +21,20 @@
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Duración <span class="text-danger">*</span></label>
-                        <input type="number" step="0.01" name="duracion" class="form-control @error('duracion') is-invalid @enderror" value="{{ old('duracion', $evento->duracion) }}" required>
+                        <input 
+                        type="number" 
+                        step="0.01" 
+                        min="0.5"
+                        name="duracion" 
+                        class="form-control @error('duracion') is-invalid @enderror" 
+                        value="{{ old('duracion', $evento->duracion) }}" 
+                        required
+                        >
                         @error('duracion')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Personas <span class="text-danger">*</span></label>
-                        <input type="number" name="personas" class="form-control @error('personas') is-invalid @enderror" value="{{ old('personas', $evento->personas) }}" required>
+                        <input type="number" min="1" name="personas" class="form-control @error('personas') is-invalid @enderror" value="{{ old('personas', $evento->personas) }}" required>
                         @error('personas')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                 </div>

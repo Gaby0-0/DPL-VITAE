@@ -82,10 +82,10 @@ class ServicioController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'costo_total'   => 'required|numeric',
+            'costo_total'   => ['required', 'numeric', 'min:0'],
             'estado'        => 'required|string',
             'fecha_hora'    => 'required|date',
-            'hora_salida'   => 'nullable|date',
+            'hora_salida'   => ['nullable', 'date', 'after_or_equal:fecha_hora'],
             'observaciones' => 'nullable|string',
             'tipo'          => 'nullable|string',
             'id_ambulancia' => 'required|exists:ambulancia,id_ambulancia',
@@ -116,10 +116,10 @@ class ServicioController extends Controller
     public function update(Request $request, Servicio $servicio)
     {
         $data = $request->validate([
-            'costo_total'   => 'required|numeric',
+            'costo_total'   => ['required', 'numeric', 'min:0'],
             'estado'        => 'required|string',
             'fecha_hora'    => 'required|date',
-            'hora_salida'   => 'nullable|date',
+            'hora_salida'   => ['nullable', 'date', 'after_or_equal:fecha_hora'],
             'observaciones' => 'nullable|string',
             'tipo'          => 'nullable|string',
             'id_ambulancia' => 'required|exists:ambulancia,id_ambulancia',
