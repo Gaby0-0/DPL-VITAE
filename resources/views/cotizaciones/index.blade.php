@@ -7,6 +7,17 @@
         </div>
     @endif
 
+    <!-- Boton nueva cotización -->
+<div class="col-md-2 d-flex gap-2">
+    <a href="{{ route('cotizaciones.create') }}">
+        <button class="btn btn-primary w-100" title="Generar Cotizacion">
+            <i class="bx bx-plus me-1"></i> Generar Cotización
+        </button>
+    </a>
+</div>
+
+
+<!-- Filtro estados -->
 <div class="card mb-4 border-0 shadow-sm" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.04), rgba(59, 130, 246, 0.04));">
   <div class="card-body p-3">
     <form method="GET" action="{{ url()->current() }}" class="row g-3 align-items-end">
