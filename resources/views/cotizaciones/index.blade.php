@@ -6,6 +6,24 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
+
+<div class="card mb-4 border-0 shadow-sm" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.04), rgba(59, 130, 246, 0.04));">
+  <div class="card-body p-3">
+    <form method="GET" action="{{ url()->current() }}" class="row g-3 align-items-end">
+
+    <div class="col-md-2">
+<label class="form-label text-primary fw-bold" style="font-size: 0.8rem; text-transform: uppercase;"><i class="bx bx-status me-1"></i>Estado</label>
+    <select name="estado" class="form-select border-0 shadow-sm" onchange="this.form.submit()">
+            <option value="">Todos los estados</option>
+            @foreach ($estados as $value => $label)
+                <option value="{{ $value }}" {{ request('estado') == $value ? 'selected' : '' }}>
+                    {{ $label }}
+                </option>
+            @endforeach
+        </select>
+</div>
+
+
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Solicitudes de Cotización</h5>

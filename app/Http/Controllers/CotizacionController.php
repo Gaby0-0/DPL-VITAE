@@ -85,10 +85,22 @@ class CotizacionController extends Controller
         return view('cotizaciones.rastrear', compact('empresa', 'cotizacion', 'buscado'));
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $cotizaciones = Cotizacion::latest()->paginate(8);
-        return view('cotizaciones.index', compact('cotizaciones'));
+        $cotizaciones = Cotizacion::latest()
+        ->when($request->estado, function ($q, $estado){
+            $q->where('estado', $estado);
+        })
+        ->paginate(8);
+
+        $estados = [
+            'Pendiente' => 'Pendientes',
+            'Aceptada' => 'Aceptadas',
+            'En revisión' => 'En revisión',
+            'Cancelada' => 'Canceladas' 
+        ];
+
+        return view('cotizaciones.index', compact('cotizaciones', 'estados'));
     }
 
     public function show(Cotizacion $cotizacion)
