@@ -91,8 +91,10 @@ new #[Layout('components.layouts.auth')] class extends Component {
 @endsection
 
 <div>
-    <x-auth-header :title="__('Welcome to :app!', ['app' => config('app.name')])" :description="__('Enter your email and password below to log in')" />
-
+    <h4 class="mb-1">Bienvenid@ a DPL-VITAE</h4>
+    <p class="mb-6">
+        Ingrese sus credenciales para iniciar sesión.
+    </p>
     <!-- Session Status -->
     @if (session('status'))
         <div class="alert alert-info mb-4">
@@ -102,7 +104,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
     <form wire:submit="login" class="mb-6">
         <div class="mb-6">
-            <label for="email" class="form-label">{{ __('Email or Username') }}</label>
+            <label for="email" class="form-label"> Correo electrónico </label>
             <input
                 wire:model="email"
                 type="email"
@@ -111,7 +113,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
                 required
                 autofocus
                 autocomplete="email"
-                placeholder="{{ __('Enter your email') }}"
+                placeholder="Ingresa tu correo electrónico"
             >
             @error('email')
                 <div class="invalid-feedback">{{ $message }}</div>
@@ -120,10 +122,10 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
         <div class="mb-6 form-password-toggle">
             <div class="d-flex justify-content-between">
-                <label for="password" class="form-label">{{ __('Password') }}</label>
+                <label for="password" class="form-label">{{ __('Contraseña') }}</label>
                 @if (Route::has('password.request'))
                     <a href="{{ route('password.request') }}" wire:navigate>
-                        <span>{{ __('Forgot Password?') }}</span>
+                        <span>{{ __('¿Olvidó la contraseña') }}</span>
                     </a>
                 @endif
             </div>
@@ -144,7 +146,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
             </div>
         </div>
 
-        <div class="mb-8">
+<!--         <div class="mb-8">
             <div class="d-flex justify-content-between mt-8">
                 <div class="form-check mb-0 ms-2">
                     <input wire:model="remember" type="checkbox" class="form-check-input" id="remember">
@@ -153,18 +155,20 @@ new #[Layout('components.layouts.auth')] class extends Component {
                     </label>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <div class="mb-6">
-            <button type="submit" class="btn btn-primary d-grid w-100">{{ __('Login') }}</button>
+            <button type="submit" class="btn btn-primary d-grid w-100">
+            Iniciar sesión
+            </button>
         </div>
     </form>
 
     @if (Route::has('register'))
         <p class="text-center">
-            <span>{{ __('New on our platform?') }}</span>
+            <span>¿No tienes cuenta?</span>
             <a href="{{ route('register') }}" wire:navigate>
-                <span>{{ __('Create an account') }}</span>
+                <span>Crear cuenta</span>
             </a>
         </p>
     @endif

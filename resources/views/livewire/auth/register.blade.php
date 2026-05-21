@@ -15,7 +15,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
     public string $email = '';
     public string $password = '';
     public string $password_confirmation = '';
-    public bool $terms = false;
 
     public function register(): void
     {
@@ -25,7 +24,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
             'ap_materno' => ['nullable', 'string', 'max:100'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
-            'terms' => ['accepted'],
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
@@ -50,9 +48,10 @@ new #[Layout('components.layouts.auth')] class extends Component {
 @endsection
 
 <div>
-    <h4 class="mb-1">{{ __('Adventure starts here') }} 🚀</h4>
-    <p class="mb-6">{{ __('Make your app management easy and fun!') }}</p>
-
+        <h4 class="mb-1">Registro</h4>
+        <p class="mb-6">
+            Cree su cuenta para solicitar y consultar servicios de ambulancia.
+        </p>
     @if (session('status'))
         <div class="alert alert-info mb-4">
             {{ session('status') }}
@@ -117,7 +116,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
                 id="email"
                 required
                 autocomplete="email"
-                placeholder="{{ __('Enter your email') }}"
+                placeholder="{{ __('Ingrese su correo electronico') }}"
             >
             @error('email')
                 <div class="invalid-feedback">{{ $message }}</div>
@@ -125,7 +124,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
         </div>
 
         <div class="mb-6 form-password-toggle">
-            <label class="form-label" for="password">{{ __('Password') }}</label>
+            <label class="form-label" for="password">{{ __('Contraseña') }}</label>
             <div class="input-group input-group-merge">
                 <input
                     wire:model="password"
@@ -144,7 +143,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
         </div>
 
         <div class="mb-6 form-password-toggle">
-            <label class="form-label" for="password_confirmation">{{ __('Confirm Password') }}</label>
+            <label class="form-label" for="password_confirmation">{{ __('Confirmar Contraseña') }}</label>
             <div class="input-group input-group-merge">
                 <input
                     wire:model="password_confirmation"
@@ -162,28 +161,17 @@ new #[Layout('components.layouts.auth')] class extends Component {
             </div>
         </div>
 
-        <div class="mb-8">
-            <div class="form-check mb-0 ms-2">
-                <input wire:model="terms" type="checkbox" class="form-check-input @error('terms') is-invalid @enderror" id="terms">
-                <label class="form-check-label" for="terms">
-                    {{ __('I agree to') }}
-                    <a href="javascript:void(0);">{{ __('privacy policy & terms') }}</a>
-                </label>
-                @error('terms')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
-        </div>
+        
 
         <button type="submit" class="btn btn-primary d-grid w-100 mb-6">
-            {{ __('Sign up') }}
+            Registrarse
         </button>
     </form>
 
     <p class="text-center">
-        <span>{{ __('Already have an account?') }}</span>
+        <span>{{ __('¿Ya tiene una cuenta?') }}</span>
         <a href="{{ route('login') }}" wire:navigate>
-            <span>{{ __('Sign in instead') }}</span>
+            <span>{{ __('Inicia sesión') }}</span>
         </a>
     </p>
 </div>
