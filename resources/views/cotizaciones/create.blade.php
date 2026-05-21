@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
         body { font-family: 'Public Sans', sans-serif; background: #f5f5f9; }
         .navbar-brand img { height: 45px; object-fit: contain; }
@@ -164,7 +165,8 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Fecha requerida</label>
-                                <input type="date" name="fecha_requerida"
+
+                                <input type="text" id="fecha" name="fecha_requerida" placeholder="Selecciona fecha"
                                     class="form-control @error('fecha_requerida') is-invalid @enderror"
                                     value="{{ old('fecha_requerida') }}" min="{{ date('Y-m-d') }}">
                                 @error('fecha_requerida')<div class="invalid-feedback">{{ $message }}</div>@enderror
@@ -532,5 +534,21 @@
     }
 })();
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    const fechasOcupadas = @json($fechasOcupadas);
+</script>
+<script>
+flatpickr("#fecha", {
+    dateFormat: "Y-m-d",
+
+    // aquí bloqueas las fechas de la BD
+    disable: fechasOcupadas
+    //    minDate: "today",
+  //  allowInput: false
+});
+</script>
+
 </body>
 </html>
