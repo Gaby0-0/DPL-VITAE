@@ -30,7 +30,14 @@
                 <dd class="col-sm-9">{{ $empresa->slogan ?? '—' }}</dd>
 
                 <dt class="col-sm-3">Teléfono</dt>
-                <dd class="col-sm-9">{{ $empresa->telefono ?? '—' }}</dd>
+                <dd class="col-sm-9">
+                    @php
+                        $tel = preg_replace('/\D/', '', $empresa->telefono ?? '');
+                        echo strlen($tel) === 10
+                            ? '(' . substr($tel,0,3) . ') ' . substr($tel,3,3) . '-' . substr($tel,6,4)
+                            : ($empresa->telefono ?? '—');
+                    @endphp
+                </dd>
 
                 <dt class="col-sm-3">Correo</dt>
                 <dd class="col-sm-9">{{ $empresa->correo ?? '—' }}</dd>

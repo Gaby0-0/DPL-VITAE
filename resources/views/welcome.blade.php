@@ -271,11 +271,17 @@
         </div>
         <div class="row g-4 justify-content-center">
             @if($empresa->telefono)
+            @php
+                $tel = preg_replace('/\D/', '', $empresa->telefono);
+                $telDisplay = strlen($tel) === 10
+                    ? '(' . substr($tel,0,3) . ') ' . substr($tel,3,3) . '-' . substr($tel,6,4)
+                    : $empresa->telefono;
+            @endphp
             <div class="col-sm-6 col-md-3">
                 <div class="card card-info text-center p-4">
                     <i class="bx bx-phone text-primary fs-2 mb-2"></i>
                     <h6 class="fw-semibold">Teléfono</h6>
-                    <p class="text-muted mb-0">{{ $empresa->telefono }}</p>
+                    <p class="text-muted mb-0">{{ $telDisplay }}</p>
                 </div>
             </div>
             @endif
