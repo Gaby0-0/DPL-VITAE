@@ -85,6 +85,8 @@ Route::middleware(['auth', 'verified', 'es.admin'])->group(function () {
     Route::resource('direcciones',       DireccionController::class);
 
     Route::get('cotizaciones',                          [CotizacionController::class, 'index'])->name('cotizaciones.index');
+    Route::get('cotizaciones/solicitar',  [CotizacionController::class, 'create'])->name('cotizaciones.create');
+    Route::post('cotizaciones/solicitar', [CotizacionController::class, 'store'])->name('cotizaciones.store');
     Route::get('cotizaciones/{cotizacion}',             [CotizacionController::class, 'show'])->name('cotizaciones.show');
     Route::put('cotizaciones/{cotizacion}',             [CotizacionController::class, 'update'])->name('cotizaciones.update');
     Route::post('cotizaciones/{cotizacion}/aceptar',    [CotizacionController::class, 'aceptar'])->name('cotizaciones.aceptar');

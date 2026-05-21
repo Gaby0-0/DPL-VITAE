@@ -10,8 +10,11 @@ class EmpresaController extends Controller
 {
     public function index()
     {
-        $empresas = Empresa::paginate(8);
-        return view('empresas.index', compact('empresas'));
+        $empresa = Empresa::first();
+        if ($empresa) {
+            return redirect()->route('empresas.edit', $empresa);
+        }
+        return view('empresas.index');
     }
 
     public function create()
@@ -28,13 +31,15 @@ class EmpresaController extends Controller
             'vision'      => 'nullable|string',
             'valores'     => 'nullable|string',
             'descripcion' => 'nullable|string',
-            'telefono'    => 'nullable|string|max:20',
+            'telefono'    => 'nullable|digits:10',
             'correo'      => 'nullable|email|max:150',
             'sitio_web'   => 'nullable|string|max:200',
             'direccion'   => 'nullable|string',
             'costo_km'    => 'nullable|numeric|min:0',
             'logo'        => 'nullable|image|max:2048',
             'imagen'      => 'nullable|image|max:4096',
+        ], [
+            'telefono.digits' => 'El teléfono debe tener exactamente 10 dígitos numéricos.',
         ]);
 
         if ($request->hasFile('logo')) {
@@ -68,13 +73,15 @@ class EmpresaController extends Controller
             'vision'      => 'nullable|string',
             'valores'     => 'nullable|string',
             'descripcion' => 'nullable|string',
-            'telefono'    => 'nullable|string|max:20',
+            'telefono'    => 'nullable|digits:10',
             'correo'      => 'nullable|email|max:150',
             'sitio_web'   => 'nullable|string|max:200',
             'direccion'   => 'nullable|string',
             'costo_km'    => 'nullable|numeric|min:0',
             'logo'        => 'nullable|image|max:2048',
             'imagen'      => 'nullable|image|max:4096',
+        ], [
+            'telefono.digits' => 'El teléfono debe tener exactamente 10 dígitos numéricos.',
         ]);
 
         if ($request->hasFile('logo')) {

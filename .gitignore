@@ -1,24 +1,34 @@
-*.log
-.DS_Store
+# Dependencias
+/node_modules
+/vendor
+
+# Variables de entorno
 .env
 .env.backup
 .env.production
-.phpactor.json
-.phpunit.result.cache
-/.fleet
-/.idea
-/.nova
-/.phpunit.cache
-/.vscode
-/.zed
-/auth.json
-/node_modules
+
+# Compilados de Vite / frontend
 /public/build
 /public/hot
-/public/storage
+
+# Laravel
+/bootstrap/cache/*.php
 /storage/*.key
-/storage/pail
-/vendor
 Homestead.json
 Homestead.yaml
+auth.json
+npm-debug.log
+yarn-error.log
+
+# Sistema operativo
+.DS_Store
 Thumbs.db
+
+# IDE
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

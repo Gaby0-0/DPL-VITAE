@@ -10,6 +10,7 @@ use App\Models\Empresa;
 use App\Models\Operador;
 use App\Models\Servicio;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class CotizacionController extends Controller
 {
@@ -21,7 +22,12 @@ class CotizacionController extends Controller
         $tiposDisponibles = \App\Models\TipoAmbulancia::whereHas('ambulancias', function ($q) {
                 $q->where('estado', 'Disponible');
             })->orderByDesc('costo_base')->get();
-        return view('cotizaciones.create', compact('empresa', 'tiposAmbulancia', 'tiposDisponibles', 'user'));
+
+        $fechasOcupadas = Cotizacion::pluck('fecha_requerida')
+    ->map(fn($f) => \Carbon\Carbon::parse($f)->format('Y-m-d'))
+    ->toArray();
+
+        return view('cotizaciones.create', compact('empresa', 'tiposAmbulancia', 'tiposDisponibles', 'user', 'fechasOcupadas'));
     }
 
     public function store(Request $request)
@@ -44,7 +50,26 @@ class CotizacionController extends Controller
             'tipo_ambulancia_preferida' => 'nullable|string|max:150',
         ]);
 
-        $data                = $request->all();
+
+
+        $data = $request->validate([
+    'nombre'                 => 'required|string|max:150',
+    'telefono'               => 'required|string|max:20',
+    'correo'                 => 'nullable|email|max:150',
+    'tipo_servicio'          => 'required|string|max:100',
+    'descripcion'            => 'nullable|string',
+    'fecha_requerida'        => 'required|date|after_or_equal:today',
+    'origen'                 => 'nullable|string|max:500',
+    'lat_origen'             => 'nullable|numeric|between:-90,90',
+    'lng_origen'             => 'nullable|numeric|between:-180,180',
+    'destino'                => 'nullable|string|max:500',
+    'lat_destino'            => 'nullable|numeric|between:-90,90',
+    'lng_destino'            => 'nullable|numeric|between:-180,180',
+    'personas'               => 'nullable|integer|min:1',
+    'padecimientos_paciente' => 'nullable|string',
+    'tipo_ambulancia_preferida' => 'nullable|string|max:150',
+]);
+
         $data['user_id']     = auth()->id();
         $data['numero_guia'] = Cotizacion::generarGuia();
         $data['estado']      = 'Pendiente';
@@ -85,10 +110,22 @@ class CotizacionController extends Controller
         return view('cotizaciones.rastrear', compact('empresa', 'cotizacion', 'buscado'));
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $cotizaciones = Cotizacion::latest()->paginate(8);
-        return view('cotizaciones.index', compact('cotizaciones'));
+        $cotizaciones = Cotizacion::latest()
+        ->when($request->estado, function ($q, $estado){
+            $q->where('estado', $estado);
+        })
+        ->paginate(8);
+
+        $estados = [
+            'Pendiente' => 'Pendientes',
+            'Aceptada' => 'Aceptadas',
+            'En revisión' => 'En revisión',
+            'Cancelada' => 'Canceladas' 
+        ];
+
+        return view('cotizaciones.index', compact('cotizaciones', 'estados'));
     }
 
     public function show(Cotizacion $cotizacion)
