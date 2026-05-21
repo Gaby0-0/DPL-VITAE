@@ -148,6 +148,13 @@
       </a>
     </li>
 
+    <li class="menu-item {{ request()->is('reportes*') ? 'active' : '' }}">
+      <a class="menu-link" href="{{ route('reportes.index') }}" wire:navigate>
+        <i class="menu-icon tf-icons bx bx-file"></i>
+        <div class="text-truncate">Reportes</div>
+      </a>
+    </li>
+
     <li class="menu-header small text-uppercase">
       <span class="menu-header-text">Cuenta</span>
     </li>

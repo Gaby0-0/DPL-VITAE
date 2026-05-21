@@ -20,6 +20,7 @@ use App\Http\Controllers\CotizacionController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ReportesController;
 
 // ── Rutas públicas ──────────────────────────────────────────────────────────
 Route::get('/', function () {
@@ -92,6 +93,14 @@ Route::middleware(['auth', 'verified', 'es.admin'])->group(function () {
     Route::post('cotizaciones/{cotizacion}/aceptar',    [CotizacionController::class, 'aceptar'])->name('cotizaciones.aceptar');
     Route::post('cotizaciones/{cotizacion}/rechazar',   [CotizacionController::class, 'rechazar'])->name('cotizaciones.rechazar');
     Route::delete('cotizaciones/{cotizacion}',          [CotizacionController::class, 'destroy'])->name('cotizaciones.destroy');
+
+    Route::prefix('reportes')->name('reportes.')->group(function () {   // ← con prefix y name
+        Route::get('/',        [ReportesController::class, 'index'])        ->name('index');
+        Route::get('/preview', [ReportesController::class, 'preview'])      ->name('preview');
+        Route::get('/pdf',     [ReportesController::class, 'descargarPDF']) ->name('pdf');
+    });
+
+
 });
 
 require __DIR__ . '/auth.php';
