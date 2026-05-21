@@ -106,6 +106,7 @@ function aplicarFiltro(input) {
     }
 }
 
+
 // Inicializar al cargar el DOM
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('[data-filter]').forEach(aplicarFiltro);
@@ -114,4 +115,67 @@ document.addEventListener('DOMContentLoaded', () => {
 // Soporte para Livewire (navegación SPA con wire:navigate)
 document.addEventListener('livewire:navigated', () => {
     document.querySelectorAll('[data-filter]').forEach(aplicarFiltro);
+});
+
+
+// Validaciones para valores mínimos de salario
+
+/**
+ * salarioMinimo
+ * Valida que el campo de salario tenga un valor igual o mayor al mínimo permitido.
+ *
+ * Uso en HTML:
+ *   data-salario-minimo="28.55"  → el salario debe ser >= 28.55
+ */
+function salarioMinimo(input) {
+    const minimo = parseFloat(input.dataset.salarioMinimo);
+    if (isNaN(minimo)) return;
+
+    // Busca el contenedor correcto (input-group o parentElement)
+    const contenedor = input.closest('.input-group')?.parentElement ?? input.parentElement;
+
+    function mostrarError(mensaje) {
+        let error = contenedor.querySelector('.error-salario-minimo');
+        if (!error) {
+            error = document.createElement('div');
+            error.className = 'error-salario-minimo invalid-feedback d-block mt-1';
+            contenedor.appendChild(error);
+        }
+        error.innerHTML = `<i class="bx bx-error-circle me-1"></i>${mensaje}`;
+        input.classList.add('is-invalid');
+    }
+
+    function limpiarError() {
+        const error = contenedor.querySelector('.error-salario-minimo');
+        if (error) error.remove();
+        input.classList.remove('is-invalid');
+    }
+
+    // Validar al perder el foco
+    input.addEventListener('blur', () => {
+        const valor = parseFloat(input.value);
+        if (isNaN(valor) || valor < minimo) {
+            mostrarError(`El salario mínimo permitido es $${minimo.toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN/hr.`);
+        } else {
+            limpiarError();
+        }
+    });
+
+    // Limpiar error mientras escribe si ya es válido
+    input.addEventListener('input', () => {
+        const valor = parseFloat(input.value);
+        if (!isNaN(valor) && valor >= minimo) {
+            limpiarError();
+        }
+    });
+}
+
+// Inicializar salarioMinimo
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-salario-minimo]').forEach(salarioMinimo);
+});
+
+// Soporte Livewire
+document.addEventListener('livewire:navigated', () => {
+    document.querySelectorAll('[data-salario-minimo]').forEach(salarioMinimo);
 });

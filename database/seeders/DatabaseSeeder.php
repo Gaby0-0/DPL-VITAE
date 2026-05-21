@@ -25,6 +25,11 @@ class DatabaseSeeder extends Seeder
             'costo_km'    => 25.00,
         ]);
 
+        DB::table('salario_minimo')->insert([
+            ['tipo_empleado' => 'operador', 'monto' => 28.55,'vigente_desde' => '2025-01-01'],
+            ['tipo_empleado' => 'administrativo', 'monto' => 35.55,'vigente_desde' => '2025-01-01'],
+        ]);
+
         // ── USUARIOS ───────────────────────────────────────────────────────
         for ($i = 1; $i <= 30; $i++) {
             DB::table('users')->insert([

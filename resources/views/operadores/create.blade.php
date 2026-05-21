@@ -166,6 +166,7 @@
                                 value="{{ old('salario_hora') }}"
                                 placeholder="0.00"
                                 data-filter="decimal"
+                                data-salario-minimo"28.55""
                             >
                             <span class="input-group-text">MXN/hr</span>
                             @error('salario_hora')
