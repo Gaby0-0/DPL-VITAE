@@ -9,7 +9,7 @@
 
     <!-- Boton nueva cotización -->
 <div class="col-md-2 d-flex gap-2">
-    <a href="{{ route('cotizaciones.create') }}">
+    <a href="{{ route('admin.cotizaciones.create') }}">
         <button class="btn btn-primary w-100" title="Generar Cotizacion">
             <i class="bx bx-plus me-1"></i> Generar Cotización
         </button>
@@ -64,15 +64,22 @@
                         <td>{{ $cotizacion->fecha_requerida ? \Carbon\Carbon::parse($cotizacion->fecha_requerida)->format('d/m/Y') : '—' }}</td>
                         <td>
                             @php
-                                $color = match($cotizacion->estado) {
-                                    'Pendiente'   => 'warning',
-                                    'En revisión' => 'info',
-                                    'Respondida'  => 'success',
-                                    'Cancelada'   => 'danger',
-                                    default       => 'secondary',
+                                $colorCot = match(true) {
+                                    $cotizacion->estado === 'Aceptada' && $cotizacion->decision_cliente === 'declinada'  => 'danger',
+                                    $cotizacion->estado === 'Aceptada' && $cotizacion->decision_cliente === 'confirmada' => 'success',
+                                    $cotizacion->estado === 'Pendiente'   => 'warning',
+                                    $cotizacion->estado === 'En revisión' => 'info',
+                                    $cotizacion->estado === 'Aceptada'    => 'success',
+                                    $cotizacion->estado === 'Cancelada'   => 'danger',
+                                    default => 'secondary',
+                                };
+                                $labelCot = match(true) {
+                                    $cotizacion->estado === 'Aceptada' && $cotizacion->decision_cliente === 'declinada'  => 'Declinada',
+                                    $cotizacion->estado === 'Aceptada' && $cotizacion->decision_cliente === 'confirmada' => 'Confirmada',
+                                    default => $cotizacion->estado,
                                 };
                             @endphp
-                            <span class="badge bg-label-{{ $color }}">{{ $cotizacion->estado }}</span>
+                            <span class="badge bg-label-{{ $colorCot }}">{{ $labelCot }}</span>
                         </td>
                         <td>{{ $cotizacion->created_at->format('d/m/Y H:i') }}</td>
                         <td>

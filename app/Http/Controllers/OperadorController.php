@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Operador;
+use App\Models\Empresa;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -59,9 +60,6 @@ class OperadorController extends Controller
             'password.min'          => 'La contraseña debe tener al menos 8 caracteres.',
             'password.confirmed'    => 'Las contraseñas no coinciden.',
 
-            'salario_hora.required' => 'El salario por hora es obligatorio.',
-            'salario_hora.numeric'  => 'El salario debe ser un número.',
-            'salario_hora.min'      => 'El salario no puede ser negativo.',
         ];
     }
 
@@ -69,25 +67,32 @@ class OperadorController extends Controller
     public function index(Request $request)
     {
         $operadores = Operador::with('usuario')
-        ->when($request->estado, function ($q, $estado) {
-            $q->where('estado', $estado);
-        })
-                // filtro por rango de salario
-        ->when($request->salario_min, function ($q, $salario_min) {
-            $q->where('salario_hora', '>=', $salario_min);
-        })
-        ->when($request->salario_max, function ($q, $salario_max) {
-            $q->where('salario_hora', '<=', $salario_max);
-        })
-        ->withCount(['servicios as en_servicio' => fn($q) => $q->where('estado', 'Activo')])
-        ->paginate(8);
+            ->when($request->filled('activo'), function ($q) use ($request) {
+                $q->whereHas('usuario', fn($u) => $u->where('activo', (bool) $request->activo));
+            })
+            ->when($request->estado === 'en_servicio', fn($q) =>
+                $q->whereHas('servicios', fn($s) => $s->where('estado', 'Activo'))
+            )
+            ->when($request->estado === 'disponible', fn($q) =>
+                $q->whereDoesntHave('servicios', fn($s) => $s->where('estado', 'Activo'))
+            )
+            ->withCount(['servicios as en_servicio' => fn($q) => $q->where('estado', 'Activo')])
+            ->paginate(8);
 
         $estados = [
-            'Disponible' => 'Disponible',
-            'No disponible' => 'No disponible'
+            'disponible'   => 'Disponible',
+            'en_servicio'  => 'En servicio',
         ];
 
-        return view('operadores.index', compact('operadores', 'estados'));
+        $empresa = Empresa::first();
+        return view('operadores.index', compact('operadores', 'estados', 'empresa'));
+    }
+
+    public function updateTarifa(Request $request)
+    {
+        $request->validate(['tarifa_operador' => 'required|numeric|min:0']);
+        Empresa::first()->update(['tarifa_operador' => $request->tarifa_operador]);
+        return back()->with('success', 'Tarifa de operadores actualizada.');
     }
 
     public function create()
@@ -101,9 +106,8 @@ class OperadorController extends Controller
 
         $request->validate(
             array_merge($this->rulesPersonales(), [
-                'email'        => ['required', 'email', 'max:150', 'unique:users,email'],
-                'password'     => ['required', 'string', 'min:8', 'confirmed'],
-                'salario_hora' => ['required', 'numeric', 'min:0'],
+                'email'    => ['required', 'email', 'max:150', 'unique:users,email'],
+                'password' => ['required', 'string', 'min:8', 'confirmed'],
             ]),
             array_merge($this->messagesPersonales(), $this->messagesAcceso())
         );
@@ -115,11 +119,12 @@ class OperadorController extends Controller
                 'ap_materno' => $request->ap_materno,
                 'email'      => $request->email,
                 'password'   => Hash::make($request->password),
+                'activo'     => true,
             ]);
 
             Operador::create([
                 'id_usuario'   => $user->id_usuario,
-                'salario_hora' => $request->salario_hora,
+                'salario_hora' => 0,
             ]);
         });
 
@@ -145,9 +150,8 @@ class OperadorController extends Controller
 
         $request->validate(
             array_merge($this->rulesPersonales(), [
-                'email'        => ['required', 'email', 'max:150', 'unique:users,email,' . $operador->id_usuario . ',id_usuario'],
-                'password'     => ['nullable', 'string', 'min:8', 'confirmed'],
-                'salario_hora' => ['required', 'numeric', 'min:0'],
+                'email'    => ['required', 'email', 'max:150', 'unique:users,email,' . $operador->id_usuario . ',id_usuario'],
+                'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             ]),
             array_merge($this->messagesPersonales(), $this->messagesAcceso())
         );
@@ -164,10 +168,17 @@ class OperadorController extends Controller
             }
 
             $operador->usuario->update($userData);
-            $operador->update(['salario_hora' => $request->salario_hora]);
         });
 
         return redirect()->route('operadores.index')->with('success', 'Operador actualizado correctamente.');
+    }
+
+    public function toggleActivo(Operador $operador)
+    {
+        $user = $operador->usuario;
+        $user->update(['activo' => !$user->activo]);
+        $msg = $user->activo ? 'Operador activado correctamente.' : 'Operador desactivado correctamente.';
+        return back()->with('success', $msg);
     }
 
     public function destroy(Operador $operador)

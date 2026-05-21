@@ -47,7 +47,7 @@ class PadecimientoController extends Controller
         ->when($request->costo_max, function ($q, $costo) {
             $q->where('costo_extra', '<=', $costo);
         })
-        ->paginate(8);
+        ->paginate(8)->withQueryString();
 
         $niveles = [
             'Alto' => 'Alto',

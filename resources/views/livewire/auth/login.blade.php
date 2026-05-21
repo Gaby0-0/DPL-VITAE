@@ -43,6 +43,14 @@ new #[Layout('components.layouts.auth')] class extends Component {
         $user = Auth::user();
         $user->load(['operador', 'paramedico', 'cliente']);
 
+        if ($user->esEmpleado() && !$user->activo) {
+            Auth::logout();
+            Session::invalidate();
+            throw ValidationException::withMessages([
+                'email' => 'Tu cuenta ha sido desactivada. Contacta al administrador.',
+            ]);
+        }
+
         if ($user->esEmpleado()) {
             $this->redirectIntended(default: route('empleado.mi-panel', absolute: false), navigate: true);
         } elseif ($user->esCliente()) {

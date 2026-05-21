@@ -6,6 +6,7 @@ use App\Models\Servicio;
 use App\Models\Ambulancia;
 use App\Models\Cliente;
 use App\Models\Operador;
+use App\Models\Paramedico;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
@@ -74,28 +75,38 @@ class ServicioController extends Controller
     public function create()
     {
         $ambulancias = Ambulancia::all();
-        $clientes = Cliente::with('usuario')->get();
-        $operadores = Operador::with('usuario')->get();
-        return view('servicios.create', compact('ambulancias', 'clientes', 'operadores'));
+        $clientes    = Cliente::with('usuario')->get();
+        $operadores  = Operador::with('usuario')->get();
+        $paramedicos = Paramedico::with('usuario')->get();
+        return view('servicios.create', compact('ambulancias', 'clientes', 'operadores', 'paramedicos'));
     }
 
     public function store(Request $request)
     {
         $data = $request->validate([
-            'costo_total'   => 'required|numeric',
-            'estado'        => 'required|string',
-            'fecha_hora'    => 'required|date',
-            'hora_salida'   => 'nullable|date',
-            'observaciones' => 'nullable|string',
-            'tipo'          => 'nullable|string',
-            'id_ambulancia' => 'required|exists:ambulancia,id_ambulancia',
-            'id_cliente'    => 'required|exists:cliente,id_usuario',
-            'id_operador'   => 'required|exists:operador,id_usuario',
+            'costo_total'      => 'required|numeric',
+            'estado'           => 'required|string',
+            'fecha_hora'       => 'required|date',
+            'hora_salida'      => 'nullable|date',
+            'observaciones'    => 'nullable|string',
+            'tipo'             => 'nullable|string',
+            'id_cotizacion'    => 'nullable|exists:cotizaciones,id_cotizacion',
+            'forma_pago'       => 'nullable|in:efectivo,online',
+            'id_ambulancia'    => 'required|exists:ambulancia,id_ambulancia',
+            'id_cliente'       => 'required|exists:cliente,id_usuario',
+            'id_operador'      => 'required|exists:operador,id_usuario',
+            'paramedicos_ids'   => 'nullable|array',
+            'paramedicos_ids.*' => 'exists:paramedico,id_usuario',
         ]);
 
         $this->validarDisponibilidadOperador($request->id_operador, $request->fecha_hora);
 
-        Servicio::create($data);
+        $paramedicos = $data['paramedicos_ids'] ?? [];
+        unset($data['paramedicos_ids']);
+
+        $servicio = Servicio::create($data);
+        $servicio->paramedicos()->sync($paramedicos);
+
         return redirect()->route('servicios.index')->with('success', 'Servicio creado.');
     }
 
@@ -108,28 +119,39 @@ class ServicioController extends Controller
     public function edit(Servicio $servicio)
     {
         $ambulancias = Ambulancia::all();
-        $clientes = Cliente::with('usuario')->get();
-        $operadores = Operador::with('usuario')->get();
-        return view('servicios.edit', compact('servicio', 'ambulancias', 'clientes', 'operadores'));
+        $clientes    = Cliente::with('usuario')->get();
+        $operadores  = Operador::with('usuario')->get();
+        $paramedicos = Paramedico::with('usuario')->get();
+        $servicio->load('paramedicos');
+        return view('servicios.edit', compact('servicio', 'ambulancias', 'clientes', 'operadores', 'paramedicos'));
     }
 
     public function update(Request $request, Servicio $servicio)
     {
         $data = $request->validate([
-            'costo_total'   => 'required|numeric',
-            'estado'        => 'required|string',
-            'fecha_hora'    => 'required|date',
-            'hora_salida'   => 'nullable|date',
-            'observaciones' => 'nullable|string',
-            'tipo'          => 'nullable|string',
-            'id_ambulancia' => 'required|exists:ambulancia,id_ambulancia',
-            'id_cliente'    => 'required|exists:cliente,id_usuario',
-            'id_operador'   => 'required|exists:operador,id_usuario',
+            'costo_total'      => 'required|numeric',
+            'estado'           => 'required|string',
+            'fecha_hora'       => 'required|date',
+            'hora_salida'      => 'nullable|date',
+            'observaciones'    => 'nullable|string',
+            'tipo'             => 'nullable|string',
+            'id_cotizacion'    => 'nullable|exists:cotizaciones,id_cotizacion',
+            'forma_pago'       => 'nullable|in:efectivo,online',
+            'id_ambulancia'    => 'required|exists:ambulancia,id_ambulancia',
+            'id_cliente'       => 'required|exists:cliente,id_usuario',
+            'id_operador'      => 'required|exists:operador,id_usuario',
+            'paramedicos_ids'   => 'nullable|array',
+            'paramedicos_ids.*' => 'exists:paramedico,id_usuario',
         ]);
 
         $this->validarDisponibilidadOperador($request->id_operador, $request->fecha_hora, $servicio->id_servicio);
 
+        $paramedicos = $data['paramedicos_ids'] ?? [];
+        unset($data['paramedicos_ids']);
+
         $servicio->update($data);
+        $servicio->paramedicos()->sync($paramedicos);
+
         return redirect()->route('servicios.index')->with('success', 'Servicio actualizado.');
     }
 

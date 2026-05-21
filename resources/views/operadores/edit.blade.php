@@ -97,24 +97,6 @@
             </div>
 
             {{-- datos laborales --}}
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h6 class="mb-0"><i class="bx bx-id-card me-1 text-success"></i>Datos laborales</h6>
-                </div>
-                <div class="card-body">
-                    <div class="col-md-5">
-                        <label class="form-label">Salario por hora <span class="text-danger">*</span></label>
-                        <div class="input-group">
-                            <span class="input-group-text">$</span>
-                            <input type="number" step="0.01" min="0" name="salario_hora"
-                                class="form-control @error('salario_hora') is-invalid @enderror"
-                                value="{{ old('salario_hora', $operador->salario_hora) }}" required>
-                            <span class="input-group-text">MXN/hr</span>
-                            @error('salario_hora')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-primary">

@@ -19,6 +19,11 @@ class User extends Authenticatable
         'email',
         'telefono',
         'password',
+        'activo',
+    ];
+
+    protected $casts = [
+        'activo' => 'boolean',
     ];
 
     protected $hidden = [

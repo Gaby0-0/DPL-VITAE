@@ -1,3 +1,9 @@
+<style>
+.badge-enrevisión { background:#e3f2fd; color:#0277bd; }
+.badge-cancelada  { background:#fce8e8; color:#dc3545; }
+.badge-declinada  { background:#fce8e8; color:#dc3545; }
+.badge-confirmada { background:#e8f8ee; color:#28a745; }
+</style>
 <table class="preview-table">
     <thead>
         <tr>
@@ -7,12 +13,20 @@
     </thead>
     <tbody>
         @forelse($datos as $c)
+        @php
+            $label = match(true) {
+                $c->estado === 'Aceptada' && $c->decision_cliente === 'declinada'  => 'Declinada',
+                $c->estado === 'Aceptada' && $c->decision_cliente === 'confirmada' => 'Confirmada',
+                default => $c->estado,
+            };
+            $badgeClass = 'badge-' . strtolower(str_replace([' ', 'é', 'ó'], ['', 'e', 'o'], $label));
+        @endphp
         <tr>
             <td><strong>{{ $c->numero_guia }}</strong></td>
             <td>{{ \Carbon\Carbon::parse($c->created_at)->format('d/m/Y') }}</td>
             <td>{{ $c->nombre }}</td>
             <td>{{ $c->tipo_servicio }}</td>
-            <td><span class="badge-estado badge-{{ strtolower(str_replace(' ','',$c->estado)) }}">{{ $c->estado }}</span></td>
+            <td><span class="badge-estado {{ $badgeClass }}">{{ $label }}</span></td>
             <td>${{ $c->costo ? number_format($c->costo, 2) : '—' }}</td>
         </tr>
         @empty

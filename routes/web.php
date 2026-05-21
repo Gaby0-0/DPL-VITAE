@@ -21,6 +21,7 @@ use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReportesController;
+use App\Http\Controllers\SearchController;
 
 // ── Rutas públicas ──────────────────────────────────────────────────────────
 Route::get('/', function () {
@@ -35,6 +36,7 @@ Route::get('cotizaciones/rastrear', [CotizacionController::class, 'rastrear'])->
 Route::middleware(['auth', 'es.empleado'])->group(function () {
     Route::get('mi-panel', [EmpleadoController::class, 'miPanel'])->name('empleado.mi-panel');
     Route::put('mi-panel/perfil', [EmpleadoController::class, 'actualizarPerfil'])->name('empleado.perfil.update');
+    Route::post('mi-panel/servicio/{servicio}/finalizar', [EmpleadoController::class, 'finalizarServicio'])->name('empleado.servicio.finalizar');
 });
 
 // ── Portal del cliente ──────────────────────────────────────────────────────
@@ -64,6 +66,7 @@ Route::post('webhooks/mercadopago', [PagoController::class, 'webhook'])
 Route::middleware(['auth', 'verified', 'es.admin'])->group(function () {
 
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('buscar', [SearchController::class, 'index'])->name('buscar');
 
     Route::redirect('settings', 'settings/profile');
     Volt::route('settings/profile', 'settings.profile')->name('settings.profile');
@@ -73,8 +76,12 @@ Route::middleware(['auth', 'verified', 'es.admin'])->group(function () {
     Route::resource('eventos',           EventoController::class);
     Route::resource('pacientes',         PacienteController::class);
     Route::resource('padecimientos',     PadecimientoController::class);
+    Route::post('operadores/tarifa', [OperadorController::class, 'updateTarifa'])->name('operadores.tarifa');
     Route::resource('operadores', OperadorController::class)->parameters(['operadores' => 'operador']);
+    Route::post('operadores/{operador}/toggle-activo', [OperadorController::class, 'toggleActivo'])->name('operadores.toggle-activo');
+    Route::post('paramedicos/tarifa', [ParamedicoController::class, 'updateTarifa'])->name('paramedicos.tarifa');
     Route::resource('paramedicos',       ParamedicoController::class);
+    Route::post('paramedicos/{paramedico}/toggle-activo', [ParamedicoController::class, 'toggleActivo'])->name('paramedicos.toggle-activo');
     Route::resource('clientes',          ClienteController::class);
     Route::resource('ambulancias',       AmbulanciaController::class);
     Route::resource('tipos-ambulancia',  TipoAmbulanciaController::class)
@@ -86,8 +93,8 @@ Route::middleware(['auth', 'verified', 'es.admin'])->group(function () {
     Route::resource('direcciones',       DireccionController::class);
 
     Route::get('cotizaciones',                          [CotizacionController::class, 'index'])->name('cotizaciones.index');
-    Route::get('cotizaciones/solicitar',  [CotizacionController::class, 'create'])->name('cotizaciones.create');
-    Route::post('cotizaciones/solicitar', [CotizacionController::class, 'store'])->name('cotizaciones.store');
+    Route::get('cotizaciones/crear',                    [CotizacionController::class, 'create'])->name('admin.cotizaciones.create');
+    Route::post('cotizaciones/crear',                   [CotizacionController::class, 'store'])->name('admin.cotizaciones.store');
     Route::get('cotizaciones/{cotizacion}',             [CotizacionController::class, 'show'])->name('cotizaciones.show');
     Route::put('cotizaciones/{cotizacion}',             [CotizacionController::class, 'update'])->name('cotizaciones.update');
     Route::post('cotizaciones/{cotizacion}/aceptar',    [CotizacionController::class, 'aceptar'])->name('cotizaciones.aceptar');

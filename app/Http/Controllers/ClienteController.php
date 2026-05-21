@@ -66,9 +66,19 @@ class ClienteController extends Controller
     }
 
     // ── CRUD ────────────────────────────────────────────────────────────────
-    public function index()
+    public function index(Request $request)
     {
-        $clientes = Cliente::with('usuario')->paginate(8);
+        $clientes = Cliente::with('usuario')
+            ->when($request->filled('buscar'), function ($q) use ($request) {
+                $q->whereHas('usuario', function ($u) use ($request) {
+                    $buscar = '%' . $request->buscar . '%';
+                    $u->where('nombre', 'like', $buscar)
+                      ->orWhere('ap_paterno', 'like', $buscar)
+                      ->orWhere('ap_materno', 'like', $buscar)
+                      ->orWhere('email', 'like', $buscar);
+                });
+            })
+            ->paginate(8)->withQueryString();
         return view('clientes.index', compact('clientes'));
     }
 

@@ -81,7 +81,7 @@ class PacienteController extends Controller
         ->when($request->fecha_inicio && $request->fecha_fin, function ($q) use ($request) {
             $q->whereBetween('fecha_nacimiento', [$request->fecha_inicio, $request->fecha_fin]);
         })
-        ->paginate(8);
+        ->paginate(8)->withQueryString();
 
         $sexos = [
             'Masculino' => 'Masculino',

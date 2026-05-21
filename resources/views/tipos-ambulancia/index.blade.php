@@ -18,6 +18,7 @@
                     <tr>
                         <th>#</th>
                         <th>Nombre</th>
+                        <th>Costo base</th>
                         <th>Descripción</th>
                         <th>Acciones</th>
                     </tr>
@@ -27,6 +28,7 @@
                     <tr>
                         <td>{{ $tipo->id_tipo_ambulancia }}</td>
                         <td>{{ $tipo->nombre_tipo }}</td>
+                        <td><span class="badge bg-label-success">${{ number_format($tipo->costo_base, 2) }} MXN</span></td>
                         <td>{{ $tipo->descripcion ?? '—' }}</td>
                         <td>
                             <a href="{{ route('tipos-ambulancia.show', $tipo) }}" class="btn btn-sm btn-info"><i class="bx bx-show"></i></a>
@@ -38,7 +40,7 @@
                         </td>
                     </tr>
                     @empty
-                    <tr><td colspan="4" class="text-center text-muted py-4">Sin registros</td></tr>
+                    <tr><td colspan="5" class="text-center text-muted py-4">Sin registros</td></tr>
                     @endforelse
                 </tbody>
             </table>

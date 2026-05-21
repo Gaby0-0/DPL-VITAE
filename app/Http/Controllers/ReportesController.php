@@ -100,10 +100,10 @@ class ReportesController extends Controller
                 DB::raw("CONCAT(uo.nombre,' ',uo.ap_paterno) as operador"),
             );
 
-        if ($fi = $request->fecha_inicio) $query->whereDate('s.fecha_hora', '>=', $fi);
-        if ($ff = $request->fecha_fin)    $query->whereDate('s.fecha_hora', '<=', $ff);
-        if ($e  = $request->estado)       $query->where('s.estado', $e);
-        if ($t  = $request->tipo)         $query->where('s.tipo', $t);
+        if ($fi = $request->fecha_inicio)   $query->whereDate('s.fecha_hora', '>=', $fi);
+        if ($ff = $request->fecha_fin)     $query->whereDate('s.fecha_hora', '<=', $ff);
+        if ($e  = $request->estado)        $query->where('s.estado', $e);
+        if ($t  = $request->tipo_servicio) $query->where('s.tipo', $t);
 
         $registros = $query->orderByDesc('s.fecha_hora')->get();
 
@@ -128,15 +128,16 @@ class ReportesController extends Controller
                 'c.telefono',
                 'c.tipo_servicio',
                 'c.estado',
+                'c.decision_cliente',
                 'c.costo',
                 'c.fecha_requerida',
                 'c.created_at',
                 DB::raw("CONCAT(u.nombre,' ',u.ap_paterno) as usuario_reg"),
             );
 
-        if ($fi = $request->fecha_inicio) $query->whereDate('c.created_at', '>=', $fi);
-        if ($ff = $request->fecha_fin)    $query->whereDate('c.created_at', '<=', $ff);
-        if ($e  = $request->estado)       $query->where('c.estado', $e);
+        if ($fi = $request->fecha_inicio)  $query->whereDate('c.created_at', '>=', $fi);
+        if ($ff = $request->fecha_fin)     $query->whereDate('c.created_at', '<=', $ff);
+        if ($e  = $request->estado)        $query->where('c.estado', $e);
         if ($t  = $request->tipo_servicio) $query->where('c.tipo_servicio', $t);
 
         $registros = $query->orderByDesc('c.created_at')->get();
@@ -144,10 +145,11 @@ class ReportesController extends Controller
         return [
             'registros' => $registros,
             'resumen'   => [
-                'total'     => $registros->count(),
-                'aprobadas' => $registros->whereIn('estado', ['Aprobado', 'Aceptada'])->count(),
-                'pendientes'=> $registros->where('estado', 'Pendiente')->count(),
-                'monto'     => $registros->sum('costo'),
+                'total'      => $registros->count(),
+                'aceptadas'  => $registros->where('estado', 'Aceptada')->count(),
+                'canceladas' => $registros->where('estado', 'Cancelada')->count(),
+                'pendientes' => $registros->where('estado', 'Pendiente')->count(),
+                'monto'      => $registros->sum('costo'),
             ],
         ];
     }

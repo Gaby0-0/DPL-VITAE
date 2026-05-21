@@ -1,7 +1,9 @@
 @section('title', 'Cotización ' . $cotizacion->numero_guia)
 
 @section('vendor-style')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
+.map-admin-box { height: 300px; border-radius: 8px; border: 1px solid #dee2e6; overflow: hidden; }
 @media print {
     /* Ocultar toda la interfaz */
     #layout-navbar,
@@ -57,12 +59,20 @@
         $mapsLink  = 'https://www.google.com/maps?q='.$cotizacion->lat_destino.','.$cotizacion->lng_destino;
     }
 
-    $colorEstado = match($cotizacion->estado) {
-        'Pendiente'   => 'warning',
-        'En revisión' => 'info',
-        'Aceptada'    => 'success',
-        'Cancelada'   => 'danger',
-        default       => 'secondary',
+    $colorEstado = match(true) {
+        $cotizacion->estado === 'Aceptada' && $cotizacion->decision_cliente === 'declinada'  => 'danger',
+        $cotizacion->estado === 'Aceptada' && $cotizacion->decision_cliente === 'confirmada' => 'success',
+        $cotizacion->estado === 'Pendiente'   => 'warning',
+        $cotizacion->estado === 'En revisión' => 'info',
+        $cotizacion->estado === 'Aceptada'    => 'success',
+        $cotizacion->estado === 'Cancelada'   => 'danger',
+        default => 'secondary',
+    };
+
+    $labelEstado = match(true) {
+        $cotizacion->estado === 'Aceptada' && $cotizacion->decision_cliente === 'declinada'  => 'Declinada',
+        $cotizacion->estado === 'Aceptada' && $cotizacion->decision_cliente === 'confirmada' => 'Confirmada',
+        default => $cotizacion->estado,
     };
 @endphp
 
@@ -95,7 +105,7 @@
                 <h5 class="mb-0">{{ $cotizacion->numero_guia }}</h5>
                 <small class="text-muted">{{ $cotizacion->created_at->format('d/m/Y H:i') }}</small>
             </div>
-            <span class="badge bg-label-{{ $colorEstado }} fs-6">{{ $cotizacion->estado }}</span>
+            <span class="badge bg-label-{{ $colorEstado }} fs-6">{{ $labelEstado }}</span>
         </div>
         <div class="card-body pb-2">
             <dl class="row mb-0 small">
@@ -137,6 +147,11 @@
                 <dd class="col-7 fw-bold">{{ $cotizacion->km_distancia ?? $kmCalculado }} km</dd>
                 @endif
 
+                @if($cotizacion->requiere_oxigeno)
+                <dt class="col-5 text-muted"><i class="bx bx-plus-medical text-danger me-1"></i>Oxígeno</dt>
+                <dd class="col-7"><span class="badge bg-label-danger">Requiere oxígeno médico</span></dd>
+                @endif
+
                 @if($cotizacion->padecimientos_paciente)
                 <dt class="col-5 text-muted"><i class="bx bx-plus-medical text-warning me-1"></i>Padecimientos</dt>
                 <dd class="col-7">{{ $cotizacion->padecimientos_paciente }}</dd>
@@ -152,48 +167,114 @@
             </dl>
         </div>
 
-        {{-- resumen del paquete --}}
+        {{-- desglose de costos --}}
         @if($cotizacion->estado === 'Aceptada')
+        @php
+            $h      = (float)($cotizacion->horas_servicio ?? 1);
+            $nPm    = count($cotizacion->paramedicos_ids ?? []);
+            $tAmb   = $cotizacion->ambulancia?->tipo;
+            $tarifaOp = (float)($empresa->tarifa_operador  ?? 100);
+            $tarifaPm = (float)($empresa->tarifa_paramedico ?? 80);
+            $costoOpCalc  = round($tarifaOp * $h, 2);
+            $costoPmCalc  = round($tarifaPm * $nPm * $h, 2);
+            $costoAmbCalc = $cotizacion->costo_ambulancia;
+            $costoKmCalc  = round(($cotizacion->km_distancia ?? 0) * ($cotizacion->costo_km_unitario ?? 0), 2);
+        @endphp
         <div class="card-body border-top pt-3">
-            <h6 class="fw-bold text-success mb-3"><i class="bx bx-package me-1"></i>Paquete cotizado</h6>
-            <table class="table table-sm mb-2">
+            <h6 class="fw-bold text-success mb-3"><i class="bx bx-receipt me-1"></i>Desglose de costos</h6>
+            <table class="table table-sm table-borderless mb-2 small">
+                <thead class="table-light">
+                    <tr>
+                        <th>Concepto</th>
+                        <th class="text-center">Fórmula</th>
+                        <th class="text-end">Subtotal</th>
+                    </tr>
+                </thead>
                 <tbody>
+                    {{-- Ambulancia --}}
+                    @if($costoAmbCalc)
                     <tr>
-                        <td class="text-muted">Kilómetros</td>
-                        <td class="text-end">{{ $cotizacion->km_distancia }} km × ${{ number_format($cotizacion->costo_km_unitario,2) }}</td>
-                        <td class="text-end fw-bold">${{ number_format($cotizacion->km_distancia * $cotizacion->costo_km_unitario, 2) }}</td>
-                    </tr>
-                    @if($cotizacion->costo_ambulancia)
-                    <tr>
-                        <td class="text-muted">Ambulancia</td>
-                        <td class="text-end">{{ $cotizacion->ambulancia?->tipo?->nombre_tipo ?? '—' }}</td>
-                        <td class="text-end fw-bold">${{ number_format($cotizacion->costo_ambulancia, 2) }}</td>
-                    </tr>
-                    @endif
-                    @if($cotizacion->costo_paramedicos)
-                    <tr>
-                        <td class="text-muted">Paramédicos</td>
-                        <td class="text-end">{{ count($cotizacion->paramedicos_ids ?? []) }} × {{ $cotizacion->horas_servicio }}h</td>
-                        <td class="text-end fw-bold">${{ number_format($cotizacion->costo_paramedicos, 2) }}</td>
+                        <td><i class="bx bx-ambulance text-primary me-1"></i>
+                            Ambulancia<br>
+                            <span class="text-muted">{{ $tAmb?->nombre_tipo ?? '—' }}</span>
+                        </td>
+                        <td class="text-center text-muted">
+                            ${{ number_format($tAmb?->costo_base ?? 0, 2) }}/hr
+                            × {{ $h }}h
+                        </td>
+                        <td class="text-end fw-bold">${{ number_format($costoAmbCalc, 2) }}</td>
                     </tr>
                     @endif
+
+                    {{-- Operador --}}
+                    @if($cotizacion->id_operador)
+                    <tr>
+                        <td><i class="bx bx-user-check text-info me-1"></i>
+                            Operador<br>
+                            <span class="text-muted">Tarifa global: ${{ number_format($tarifaOp, 2) }}/hr</span>
+                        </td>
+                        <td class="text-center text-muted">
+                            ${{ number_format($tarifaOp, 2) }}/hr × {{ $h }}h
+                        </td>
+                        <td class="text-end fw-bold">${{ number_format($costoOpCalc, 2) }}</td>
+                    </tr>
+                    @endif
+
+                    {{-- Paramédicos --}}
+                    @if($nPm)
+                    <tr>
+                        <td><i class="bx bx-user-plus text-warning me-1"></i>
+                            {{ $nPm }} Paramédico{{ $nPm > 1 ? 's' : '' }}<br>
+                            <span class="text-muted">Tarifa global: ${{ number_format($tarifaPm, 2) }}/hr c/u</span>
+                        </td>
+                        <td class="text-center text-muted">
+                            ${{ number_format($tarifaPm, 2) }}/hr
+                            × {{ $nPm }} × {{ $h }}h
+                        </td>
+                        <td class="text-end fw-bold">${{ number_format($costoPmCalc, 2) }}</td>
+                    </tr>
+                    @endif
+
+                    {{-- Kilómetros --}}
+                    @if($cotizacion->km_distancia)
+                    <tr>
+                        <td><i class="bx bx-map-alt text-danger me-1"></i>
+                            Traslado (km)<br>
+                            <span class="text-muted">{{ $cotizacion->km_distancia }} km recorridos</span>
+                        </td>
+                        <td class="text-center text-muted">
+                            {{ $cotizacion->km_distancia }} km
+                            × ${{ number_format($cotizacion->costo_km_unitario, 2) }}/km
+                        </td>
+                        <td class="text-end fw-bold">${{ number_format($costoKmCalc, 2) }}</td>
+                    </tr>
+                    @endif
+
+                    {{-- Insumos --}}
                     @if($cotizacion->costo_insumos)
                     <tr>
-                        <td class="text-muted">Insumos especiales</td>
-                        <td class="text-end">{{ count($cotizacion->insumos_seleccionados ?? []) }} artículo(s)</td>
+                        <td><i class="bx bx-injection text-secondary me-1"></i>
+                            Insumos especiales<br>
+                            <span class="text-muted">{{ count($cotizacion->insumos_seleccionados ?? []) }} artículo(s)</span>
+                        </td>
+                        <td class="text-center text-muted">precio × cantidad c/u</td>
                         <td class="text-end fw-bold">${{ number_format($cotizacion->costo_insumos, 2) }}</td>
                     </tr>
                     @endif
+
                     <tr class="table-success">
-                        <td colspan="2" class="fw-bold">TOTAL</td>
-                        <td class="text-end fw-bold fs-5">${{ number_format($cotizacion->costo, 2) }} MXN</td>
+                        <td colspan="2" class="fw-bold fs-6">TOTAL</td>
+                        <td class="text-end fw-bold fs-5">${{ number_format($cotizacion->costo, 2) }} <small>MXN</small></td>
                     </tr>
                 </tbody>
             </table>
 
-            @if($cotizacion->incluye)
-            <strong class="small">El servicio incluye:</strong>
-            <div class="small text-muted mt-1" style="white-space:pre-line">{{ $cotizacion->incluye }}</div>
+            @if($cotizacion->anticipo)
+            <div class="d-flex justify-content-between align-items-center py-2 px-2 rounded"
+                 style="background:#f0f0ff;border:1px solid #696cff40;">
+                <span class="small fw-semibold"><i class="bx bx-credit-card me-1 text-primary"></i>Anticipo requerido</span>
+                <strong class="text-primary">${{ number_format($cotizacion->anticipo, 2) }} MXN</strong>
+            </div>
             @endif
 
             @if($cotizacion->respuesta)
@@ -241,6 +322,35 @@
                 @if($cotizacion->datos_paciente['medico'] ?? null)
                 <dt class="col-5 text-muted">Médico tratante</dt>
                 <dd class="col-7">{{ $cotizacion->datos_paciente['medico'] }}</dd>
+                @endif
+            </dl>
+        </div>
+        @endif
+
+        @if($cotizacion->datos_evento)
+        <div class="card-body border-top pt-3">
+            <h6 class="fw-bold text-info mb-3 small"><i class="bx bx-calendar-event me-1"></i>Datos del evento</h6>
+            <dl class="row small mb-0">
+                <dt class="col-5 text-muted">Nombre del evento</dt>
+                <dd class="col-7">{{ $cotizacion->datos_evento['nombre'] ?? '—' }}</dd>
+
+                <dt class="col-5 text-muted">Tipo de evento</dt>
+                <dd class="col-7">{{ $cotizacion->datos_evento['tipo'] ?? '—' }}</dd>
+
+                <dt class="col-5 text-muted">Asistentes</dt>
+                <dd class="col-7">{{ $cotizacion->datos_evento['personas'] ?? '—' }}</dd>
+
+                <dt class="col-5 text-muted">Responsable</dt>
+                <dd class="col-7">{{ $cotizacion->datos_evento['responsable'] ?? '—' }}</dd>
+
+                @if($cotizacion->datos_evento['tel_responsable'] ?? null)
+                <dt class="col-5 text-muted">Tel. responsable</dt>
+                <dd class="col-7">{{ $cotizacion->datos_evento['tel_responsable'] }}</dd>
+                @endif
+
+                @if($cotizacion->datos_evento['indicaciones'] ?? null)
+                <dt class="col-5 text-muted">Indicaciones</dt>
+                <dd class="col-7">{{ $cotizacion->datos_evento['indicaciones'] }}</dd>
                 @endif
             </dl>
         </div>
@@ -313,18 +423,45 @@
         <h6 class="mb-0"><i class="bx bx-map-alt me-1"></i>1. Distancia, tarifa y duración</h6>
     </div>
     <div class="card-body">
+
+        {{-- mapa interactivo --}}
+        @if($cotizacion->lat_origen || $cotizacion->lat_destino)
+        <div id="map-admin" class="map-admin-box mb-2"></div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <small class="text-muted">
+                <i class="bx bx-info-circle me-1"></i>
+                Arrastra los marcadores para ajustar y el km se recalcula automáticamente.
+            </small>
+            <div class="d-flex gap-2 align-items-center" style="font-size:.78rem">
+                @if($cotizacion->tipo_servicio === 'Traslado')
+                <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#696cff;"></span> Origen</span>
+                <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#e74c3c;"></span> Destino</span>
+                @else
+                <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#696cff;"></span> Ubicación del evento</span>
+                @endif
+                @if($empresa->lat_base && $empresa->lng_base)
+                <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#2ecc71;"></span> Base</span>
+                @endif
+            </div>
+        </div>
+        @endif
+
         <div class="row g-3">
             <div class="col-md-3">
-                <label class="form-label fw-semibold">Kilómetros</label>
+                <label class="form-label fw-semibold">Kilómetros totales</label>
                 <div class="input-group">
                     <input type="number" id="inp_km" name="km_distancia" step="0.01" min="0"
                         class="form-control" required
                         value="{{ old('km_distancia', $cotizacion->km_distancia ?? $kmCalculado) }}">
                     <span class="input-group-text">km</span>
                 </div>
-                @if($kmCalculado)
-                <small class="text-muted">Haversine: <strong>{{ $kmCalculado }} km</strong> (línea recta)</small>
-                @endif
+                <small class="text-muted" id="txt-km-detalle">
+                    @if($kmCalculado)
+                        Haversine calculado: <strong>{{ $kmCalculado }} km</strong>
+                    @else
+                        Se actualiza al mover los marcadores
+                    @endif
+                </small>
             </div>
             <div class="col-md-3">
                 <label class="form-label fw-semibold">Tarifa por km</label>
@@ -340,7 +477,7 @@
                 <label class="form-label fw-semibold">Horas del servicio</label>
                 <div class="input-group">
                     <input type="number" id="inp_horas" name="horas_servicio" step="0.5" min="0.5"
-                        class="form-control" value="{{ old('horas_servicio', 1) }}">
+                        class="form-control" value="{{ old('horas_servicio', $cotizacion->horas_servicio ?? 1) }}">
                     <span class="input-group-text">hrs</span>
                 </div>
                 <small class="text-muted">Aplica a operador y paramédicos</small>
@@ -361,13 +498,22 @@
 <div class="card mb-4">
     <div class="card-header bg-label-primary d-flex justify-content-between align-items-center">
         <h6 class="mb-0"><i class="bx bx-ambulance me-1"></i>2. Ambulancia disponible</h6>
-        @if($cotizacion->tipo_ambulancia_preferida)
-        <span class="badge bg-warning text-dark"><i class="bx bx-star me-1"></i>Cliente prefiere: {{ $cotizacion->tipo_ambulancia_preferida }}</span>
+        @if($tipoSolicitado)
+        <span class="badge bg-warning text-dark">
+            <i class="bx bx-lock-alt me-1"></i>Solo tipo: {{ $tipoSolicitado->nombre_tipo }}
+        </span>
+        @elseif($cotizacion->tipo_ambulancia_preferida)
+        <span class="badge bg-warning text-dark">
+            <i class="bx bx-star me-1"></i>Cliente prefiere: {{ $cotizacion->tipo_ambulancia_preferida }}
+        </span>
         @endif
     </div>
     <div class="card-body">
         @if($ambulancias->isEmpty())
-            <div class="alert alert-warning mb-0">No hay ambulancias activas disponibles para la fecha solicitada.</div>
+            <div class="alert alert-warning mb-0">
+                No hay ambulancias de tipo <strong>{{ $tipoSolicitado->nombre_tipo ?? $cotizacion->tipo_ambulancia_preferida }}</strong>
+                disponibles para la fecha solicitada.
+            </div>
         @else
         <div class="mb-2">
             <input type="text" id="search-amb" class="form-control form-control-sm"
@@ -385,13 +531,14 @@
                 </thead>
                 <tbody id="tbody-amb">
                     @foreach($ambulancias as $amb)
-                    <tr class="amb-row"
+                    @php $ambSelected = old('id_ambulancia', $cotizacion->id_ambulancia) == $amb->id_ambulancia; @endphp
+                    <tr class="amb-row {{ $ambSelected ? 'table-success' : '' }}"
                         data-costo-tipo="{{ $amb->tipo->costo_base ?? 0 }}"
                         data-salario-op="0"
                         style="cursor:pointer" onclick="seleccionarAmb(this, {{ $amb->id_ambulancia }})">
                         <td>
                             <input type="radio" name="id_ambulancia" value="{{ $amb->id_ambulancia }}"
-                                class="form-check-input" {{ old('id_ambulancia') == $amb->id_ambulancia ? 'checked' : '' }}>
+                                class="form-check-input" {{ $ambSelected ? 'checked' : '' }}>
                         </td>
                         <td class="fw-semibold">{{ $amb->placa }}</td>
                         <td>{{ $amb->tipo->nombre_tipo ?? '—' }}</td>
@@ -415,7 +562,7 @@
     <div class="card-header bg-label-primary d-flex justify-content-between align-items-center">
         <h6 class="mb-0"><i class="bx bx-user-check me-1"></i>3. Operador asignado</h6>
         <span class="badge bg-info text-white">
-            <i class="bx bx-shuffle me-1"></i>Sugerido aleatoriamente — puedes cambiarlo
+            <i class="bx bx-check-circle me-1"></i>Auto-asignado — puedes modificarlo si es necesario
         </span>
     </div>
     <div class="card-body">
@@ -452,7 +599,7 @@
                             {{ $op->usuario->nombre ?? '—' }}
                             {{ $op->usuario->ap_paterno ?? '' }}
                         </td>
-                        <td class="text-end">${{ number_format($op->salario_hora, 2) }}</td>
+                        <td class="text-end">${{ number_format($empresa->tarifa_operador ?? 100, 2) }}</td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -465,8 +612,11 @@
 
 {{-- sección 4: paramédicos --}}
 <div class="card mb-4">
-    <div class="card-header bg-label-primary">
+    <div class="card-header bg-label-primary d-flex justify-content-between align-items-center">
         <h6 class="mb-0"><i class="bx bx-user-plus me-1"></i>4. Paramédicos <span class="badge bg-warning text-dark ms-1">Mínimo 2</span></h6>
+        <span class="badge bg-info text-white">
+            <i class="bx bx-check-circle me-1"></i>Auto-asignados — puedes modificarlos si es necesario
+        </span>
     </div>
     <div class="card-body">
         @if($paramedicos->isEmpty())
@@ -483,14 +633,17 @@
                         <th width="40"></th>
                         <th>Paramédico</th>
                         <th class="text-end">$/hora</th>
-                        <th class="text-end">Subtotal</th>
+                        <th class="text-end">$/hora × horas = subtotal</th>
                     </tr>
                 </thead>
                 <tbody id="tabla-paramedicos">
                     @foreach($paramedicos as $pm)
-                    @php $checked = is_array(old('paramedicos_ids')) && in_array($pm->id_usuario, old('paramedicos_ids')); @endphp
+                    @php
+                        $pmAutoIds = $cotizacion->paramedicos_ids ?? [];
+                        $checked = (is_array(old('paramedicos_ids')) && in_array($pm->id_usuario, old('paramedicos_ids')))
+                                || (!is_array(old('paramedicos_ids')) && in_array($pm->id_usuario, $pmAutoIds));
+                    @endphp
                     <tr class="pm-row {{ $checked ? 'table-success' : '' }}"
-                        data-salario="{{ $pm->salario_hora }}"
                         style="cursor:pointer" onclick="toggleParamedico(this)">
                         <td>
                             <input type="checkbox" name="paramedicos_ids[]" value="{{ $pm->id_usuario }}"
@@ -500,7 +653,7 @@
                             {{ $pm->usuario->nombre ?? '—' }}
                             {{ $pm->usuario->ap_paterno ?? '' }}
                         </td>
-                        <td class="text-end">${{ number_format($pm->salario_hora, 2) }}</td>
+                        <td class="text-end">${{ number_format($empresa->tarifa_paramedico ?? 80, 2) }}</td>
                         <td class="text-end fw-bold pm-subtotal">$0.00</td>
                     </tr>
                     @endforeach
@@ -515,7 +668,7 @@
                 <i class="bx bx-error me-1"></i>Se requieren mínimo 2 paramédicos
             </span>
             <span class="ms-auto text-muted small">Subtotal paramédicos: </span>
-            <strong id="sub_paramedicos" class="text-success ms-2">$0.00</strong>
+            <span id="sub_paramedicos" class="text-success ms-2 fw-bold">$0.00</span>
         </div>
     </div>
 </div>
@@ -590,14 +743,42 @@
         <h6 class="mb-0 text-success"><i class="bx bx-receipt me-1"></i>6. Resumen del paquete</h6>
     </div>
     <div class="card-body">
-        <table class="table table-sm mb-3">
+        <table class="table table-sm mb-3 small">
+            <thead class="table-light">
+                <tr><th>Concepto</th><th class="text-center text-muted">Fórmula</th><th class="text-end">Subtotal</th></tr>
+            </thead>
             <tbody>
-                <tr><td class="text-muted">Kilómetros</td><td id="res_km" class="text-end fw-bold">$0.00</td></tr>
-                <tr><td class="text-muted">Ambulancia</td><td id="res_amb" class="text-end fw-bold">$0.00</td></tr>
-                <tr><td class="text-muted">Paramédicos</td><td id="res_pm" class="text-end fw-bold">$0.00</td></tr>
-                <tr><td class="text-muted">Insumos</td><td id="res_ins" class="text-end fw-bold">$0.00</td></tr>
+                <tr>
+                    <td><i class="bx bx-ambulance text-primary me-1"></i>Ambulancia</td>
+                    <td class="text-center text-muted" id="formula_amb">—</td>
+                    <td id="res_amb" class="text-end fw-bold">$0.00</td>
+                </tr>
+                <tr>
+                    <td><i class="bx bx-user-check text-info me-1"></i>Operador
+                        <small class="text-muted d-block">${{ number_format($empresa->tarifa_operador ?? 100, 2) }}/hr</small>
+                    </td>
+                    <td class="text-center text-muted" id="formula_op">—</td>
+                    <td id="res_op" class="text-end fw-bold">$0.00</td>
+                </tr>
+                <tr>
+                    <td><i class="bx bx-user-plus text-warning me-1"></i>Paramédicos
+                        <small class="text-muted d-block">${{ number_format($empresa->tarifa_paramedico ?? 80, 2) }}/hr c/u</small>
+                    </td>
+                    <td class="text-center text-muted" id="formula_pm">—</td>
+                    <td id="res_pm" class="text-end fw-bold">$0.00</td>
+                </tr>
+                <tr>
+                    <td><i class="bx bx-map-alt text-danger me-1"></i>Km de traslado</td>
+                    <td class="text-center text-muted" id="formula_km">—</td>
+                    <td id="res_km" class="text-end fw-bold">$0.00</td>
+                </tr>
+                <tr>
+                    <td><i class="bx bx-injection text-secondary me-1"></i>Insumos</td>
+                    <td class="text-center text-muted">precio × cant</td>
+                    <td id="res_ins" class="text-end fw-bold">$0.00</td>
+                </tr>
                 <tr class="table-success fs-5">
-                    <td class="fw-bold">TOTAL</td>
+                    <td colspan="2" class="fw-bold">TOTAL</td>
                     <td id="res_total" class="text-end fw-bold">$0.00 MXN</td>
                 </tr>
             </tbody>
@@ -696,7 +877,6 @@ $datosParamedicos = $paramedicos->map(function($p) {
     return [
         'id'     => $p->id_usuario,
         'nombre' => trim(($p->usuario->nombre ?? '') . ' ' . ($p->usuario->ap_paterno ?? '')),
-        'salario'=> (float) $p->salario_hora,
     ];
 })->values();
 
@@ -709,7 +889,122 @@ $datosInsumos = $insumos->map(function($i) {
 })->values();
 @endphp
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+// ── Mapa interactivo admin ──
+(function () {
+    var LAT_ORIGEN  = {{ $cotizacion->lat_origen  ? (float)$cotizacion->lat_origen  : 'null' }};
+    var LNG_ORIGEN  = {{ $cotizacion->lng_origen  ? (float)$cotizacion->lng_origen  : 'null' }};
+    var LAT_DESTINO = {{ $cotizacion->lat_destino ? (float)$cotizacion->lat_destino : 'null' }};
+    var LNG_DESTINO = {{ $cotizacion->lng_destino ? (float)$cotizacion->lng_destino : 'null' }};
+    var LAT_BASE    = {{ $empresa->lat_base ? (float)$empresa->lat_base : 'null' }};
+    var LNG_BASE    = {{ $empresa->lng_base ? (float)$empresa->lng_base : 'null' }};
+    var TIPO        = '{{ $cotizacion->tipo_servicio }}';
+    var COSTO_KM_U  = {{ (float)($empresa->costo_km ?? 25) }};
+
+    if (!document.getElementById('map-admin')) return;
+
+    function haversine(lat1, lng1, lat2, lng2) {
+        var R = 6371, dLat = (lat2-lat1)*Math.PI/180, dLng = (lng2-lng1)*Math.PI/180;
+        var a = Math.sin(dLat/2)*Math.sin(dLat/2) +
+                Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*
+                Math.sin(dLng/2)*Math.sin(dLng/2);
+        return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) * 10) / 10;
+    }
+
+    function iconColor(color) {
+        return L.divIcon({
+            className: '',
+            html: '<div style="width:14px;height:14px;border-radius:50%;background:'+color+';border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4);"></div>',
+            iconSize: [14, 14], iconAnchor: [7, 7]
+        });
+    }
+
+    var defaultLat = LAT_ORIGEN || LAT_DESTINO || 17.0669;
+    var defaultLng = LNG_ORIGEN || LNG_DESTINO || -96.7203;
+
+    var map = L.map('map-admin').setView([defaultLat, defaultLng], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    var markerOrigen  = null;
+    var markerDestino = null;
+    var polyline      = null;
+
+    function updateKm() {
+        var latO = markerOrigen  ? markerOrigen.getLatLng().lat  : null;
+        var lngO = markerOrigen  ? markerOrigen.getLatLng().lng  : null;
+        var latD = markerDestino ? markerDestino.getLatLng().lat : null;
+        var lngD = markerDestino ? markerDestino.getLatLng().lng : null;
+
+        var kmBase  = (LAT_BASE && LNG_BASE && latO) ? haversine(LAT_BASE, LNG_BASE, latO, lngO) : 0;
+        var kmRuta  = (latO && latD) ? haversine(latO, lngO, latD, lngD) : 0;
+        var kmTotal = Math.round((kmBase + kmRuta) * 10) / 10;
+
+        var inpKm = document.getElementById('inp_km');
+        if (inpKm) {
+            inpKm.value = kmTotal;
+            inpKm.dispatchEvent(new Event('input'));
+        }
+
+        var txtDetalle = document.getElementById('txt-km-detalle');
+        if (txtDetalle) {
+            var partes = [];
+            if (kmBase > 0) partes.push(kmBase + ' km base→origen');
+            if (kmRuta > 0) partes.push(kmRuta + ' km origen→destino');
+            txtDetalle.innerHTML = partes.length
+                ? partes.join(' + ') + ' = <strong>' + kmTotal + ' km</strong>'
+                : 'Mueve los marcadores para calcular';
+        }
+
+        if (polyline) map.removeLayer(polyline);
+        if (markerOrigen && markerDestino) {
+            polyline = L.polyline([markerOrigen.getLatLng(), markerDestino.getLatLng()],
+                { color: '#696cff', weight: 3, dashArray: '6 4' }).addTo(map);
+        }
+    }
+
+    if (LAT_ORIGEN && LNG_ORIGEN) {
+        markerOrigen = L.marker([LAT_ORIGEN, LNG_ORIGEN], {
+            draggable: true,
+            icon: iconColor('#696cff'),
+            title: 'Origen'
+        }).addTo(map);
+        markerOrigen.on('dragend', updateKm);
+    }
+
+    if (LAT_DESTINO && LNG_DESTINO && TIPO === 'Traslado') {
+        markerDestino = L.marker([LAT_DESTINO, LNG_DESTINO], {
+            draggable: true,
+            icon: iconColor('#e74c3c'),
+            title: 'Destino'
+        }).addTo(map);
+        markerDestino.on('dragend', updateKm);
+    }
+
+    if (LAT_BASE && LNG_BASE) {
+        L.marker([LAT_BASE, LNG_BASE], {
+            draggable: false,
+            icon: iconColor('#2ecc71'),
+            title: 'Base'
+        }).addTo(map);
+    }
+
+    // Ajustar vista para mostrar todos los puntos
+    var bounds = [];
+    if (markerOrigen)  bounds.push(markerOrigen.getLatLng());
+    if (markerDestino) bounds.push(markerDestino.getLatLng());
+    if (LAT_BASE && LNG_BASE) bounds.push([LAT_BASE, LNG_BASE]);
+    if (bounds.length > 1) {
+        map.fitBounds(L.latLngBounds(bounds).pad(0.2));
+    } else if (bounds.length === 1) {
+        map.setView(bounds[0], 14);
+    }
+
+    updateKm();
+})();
+
 // ── Paginador cliente genérico ──
 var pagers = {};
 function TablePager(cfg) {
@@ -762,44 +1057,49 @@ function TablePager(cfg) {
     };
 }
 
+// ── Tarifas globales ──
+var TARIFA_OP = {{ (float)($empresa->tarifa_operador  ?? 100) }};
+var TARIFA_PM = {{ (float)($empresa->tarifa_paramedico ?? 80)  }};
+
 // ── Datos de paramédicos para generarIncluye ──
 var datosParamedicos = @json($datosParamedicos);
 var datosInsumos     = @json($datosInsumos);
 
 // ── Helpers ──
 function fmt(n) { return '$' + parseFloat(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
-
-function getKm()     { return parseFloat(document.getElementById('inp_km')?.value)     || 0; }
+function getKm()     { return parseFloat(document.getElementById('inp_km')?.value)       || 0; }
 function getTarifa() { return parseFloat(document.getElementById('inp_tarifa_km')?.value) || 0; }
-function getHoras()  { return parseFloat(document.getElementById('inp_horas')?.value)   || 1; }
+function getHoras()  { return parseFloat(document.getElementById('inp_horas')?.value)     || 1; }
 
-// ── Ambulancia ──
+// ── Ambulancia: costo_base × horas ──
 function seleccionarAmb(row, id) {
     document.querySelectorAll('.amb-row').forEach(r => r.classList.remove('table-success'));
     row.classList.add('table-success');
     row.querySelector('input[type=radio]').checked = true;
-    actualizarSubtotalAmb();
     recalcularTotal();
 }
 function getAmbCosto() {
     var sel = document.querySelector('.amb-row.table-success');
     if (!sel) return 0;
-    var costoTipo = parseFloat(sel.dataset.costoTipo) || 0;
-    var salarioOp = parseFloat(sel.dataset.salarioOp) || 0;
-    return costoTipo + salarioOp * getHoras();
+    return (parseFloat(sel.dataset.costoTipo) || 0) * getHoras();
 }
 function actualizarSubtotalAmb() {
-    document.getElementById('sub_ambulancia').textContent = fmt(getAmbCosto());
+    var el = document.getElementById('sub_ambulancia');
+    if (el) el.textContent = fmt(getAmbCosto());
 }
 
-// ── Operador ──
+// ── Operador: tarifa global × horas ──
 function seleccionarOp(row, id) {
     document.querySelectorAll('.op-row').forEach(r => r.classList.remove('table-success'));
     row.classList.add('table-success');
     row.querySelector('input[type=radio]').checked = true;
+    recalcularTotal();
+}
+function getOpCosto() {
+    return document.querySelector('.op-row.table-success') ? TARIFA_OP * getHoras() : 0;
 }
 
-// ── Paramédicos ──
+// ── Paramédicos: tarifa global × N × horas ──
 function toggleParamedico(row) {
     var cb = row.querySelector('.pm-check');
     cb.checked = !cb.checked;
@@ -808,21 +1108,31 @@ function toggleParamedico(row) {
 }
 function recalcularParamedicos() {
     var horas = getHoras();
-    var total = 0;
-    var avisoMin = document.getElementById('aviso-min-pm');
     var selCount = 0;
+    var avisoMin = document.getElementById('aviso-min-pm');
 
     document.querySelectorAll('.pm-row').forEach(function(row) {
-        var cb = row.querySelector('.pm-check');
-        var salario = parseFloat(row.dataset.salario) || 0;
-        var sub = cb.checked ? salario * horas : 0;
-        if (cb.checked) selCount++;
-        row.querySelector('.pm-subtotal').textContent = fmt(sub);
-        total += sub;
+        var cb  = row.querySelector('.pm-check');
+        var cel = row.querySelector('.pm-subtotal');
+        if (cb.checked) {
+            selCount++;
+            var sub = TARIFA_PM * horas;
+            cel.innerHTML = '<span class="text-muted small d-block" style="font-size:.75rem">'
+                + fmt(TARIFA_PM) + '/hr &times; ' + horas + 'h</span>'
+                + fmt(sub);
+        } else {
+            cel.innerHTML = '<span class="text-muted">—</span>';
+        }
     });
 
+    var total = TARIFA_PM * selCount * horas;
     if (avisoMin) avisoMin.classList.toggle('d-none', selCount >= 2);
-    document.getElementById('sub_paramedicos').textContent = fmt(total);
+    var elSub = document.getElementById('sub_paramedicos');
+    if (elSub) {
+        elSub.innerHTML = selCount > 0
+            ? fmt(TARIFA_PM) + '/hr &times; ' + selCount + ' &times; ' + horas + 'h = <strong>' + fmt(total) + '</strong>'
+            : fmt(0);
+    }
     recalcularTotal();
 }
 
@@ -843,55 +1153,86 @@ function recalcularInsumos() {
 
 // ── KM ──
 function recalcularKm() {
-    var km  = getKm();
-    var tar = getTarifa();
-    var sub = km * tar;
-    document.getElementById('sub_km').value = sub.toFixed(2);
+    var sub = getKm() * getTarifa();
+    var el = document.getElementById('sub_km');
+    if (el) el.value = sub.toFixed(2);
     recalcularTotal();
 }
 
-// ── Total general ──
+// ── Total general con desglose y fórmulas ──
 function recalcularTotal() {
-    var km  = getKm() * getTarifa();
-    var amb = getAmbCosto();
-    var pm  = parseFloat(document.getElementById('sub_paramedicos').textContent.replace(/[$,]/g,'')) || 0;
-    var ins = parseFloat(document.getElementById('sub_insumos').textContent.replace(/[$,]/g,''))     || 0;
-    var tot = km + amb + pm + ins;
+    var horas = getHoras();
+    var km    = getKm();
+    var tar   = getTarifa();
+    var amb   = getAmbCosto();
+    var op    = getOpCosto();
+    var pm    = TARIFA_PM * document.querySelectorAll('.pm-row .pm-check:checked').length * horas;
+    var ins   = parseFloat(document.getElementById('sub_insumos')?.textContent.replace(/[$,]/g,'')) || 0;
+    var tot   = km * tar + amb + op + pm + ins;
 
-    document.getElementById('res_km').textContent  = fmt(km);
-    document.getElementById('res_amb').textContent  = fmt(amb);
-    document.getElementById('res_pm').textContent   = fmt(pm);
-    document.getElementById('res_ins').textContent  = fmt(ins);
-    document.getElementById('res_total').textContent = fmt(tot) + ' MXN';
+    // Subtotales
+    if (document.getElementById('sub_ambulancia')) document.getElementById('sub_ambulancia').textContent = fmt(amb);
+
+    // Resumen con fórmulas
+    var selAmb = document.querySelector('.amb-row.table-success');
+    var tipoAmb = selAmb ? selAmb.querySelectorAll('td')[2]?.textContent.trim() : null;
+    var costoBase = selAmb ? (parseFloat(selAmb.dataset.costoTipo) || 0) : 0;
+
+    var nPm = document.querySelectorAll('.pm-row .pm-check:checked').length;
+    var hasOp = !!document.querySelector('.op-row.table-success');
+
+    if (document.getElementById('res_amb')) {
+        document.getElementById('res_amb').textContent = fmt(amb);
+        document.getElementById('formula_amb').textContent =
+            tipoAmb ? ('$' + costoBase.toFixed(2) + '/hr × ' + horas + 'h') : '—';
+    }
+    if (document.getElementById('res_op')) {
+        document.getElementById('res_op').textContent = fmt(op);
+        document.getElementById('formula_op').textContent =
+            hasOp ? ('$' + TARIFA_OP.toFixed(2) + '/hr × ' + horas + 'h') : '—';
+    }
+    if (document.getElementById('res_pm')) {
+        document.getElementById('res_pm').textContent = fmt(pm);
+        document.getElementById('formula_pm').textContent =
+            nPm ? ('$' + TARIFA_PM.toFixed(2) + '/hr × ' + nPm + ' × ' + horas + 'h') : '—';
+    }
+    if (document.getElementById('res_km')) {
+        document.getElementById('res_km').textContent = fmt(km * tar);
+        document.getElementById('formula_km').textContent =
+            km ? (km + ' km × $' + tar.toFixed(2) + '/km') : '—';
+    }
+    if (document.getElementById('res_ins')) document.getElementById('res_ins').textContent = fmt(ins);
+    if (document.getElementById('res_total')) document.getElementById('res_total').textContent = fmt(tot) + ' MXN';
 }
 
 // ── Generar texto "incluye" ──
 function generarIncluye() {
+    var horas = getHoras();
     var lines = [];
     var km = getKm(); var tar = getTarifa();
-    if (km > 0) lines.push('• Traslado de ' + km + ' km (tarifa $' + tar.toFixed(2) + '/km)');
 
     var ambRow = document.querySelector('.amb-row.table-success');
     if (ambRow) {
         var tipoCell = ambRow.querySelectorAll('td')[2];
-        lines.push('• Ambulancia ' + (tipoCell ? tipoCell.textContent.trim() : ''));
+        var cb = parseFloat(ambRow.dataset.costoTipo) || 0;
+        lines.push('• Ambulancia ' + (tipoCell ? tipoCell.textContent.trim() : '') + ' — $' + cb.toFixed(2) + '/hr × ' + horas + 'h');
     }
 
     var opRow = document.querySelector('.op-row.table-success');
     if (opRow) {
         var opNombre = opRow.querySelectorAll('td')[1].textContent.trim();
-        if (opNombre) lines.push('• Operador: ' + opNombre);
+        lines.push('• Operador: ' + opNombre + ' — $' + TARIFA_OP.toFixed(2) + '/hr × ' + horas + 'h');
     }
 
     var pmNames = [];
     document.querySelectorAll('.pm-row').forEach(function(row) {
-        if (row.querySelector('.pm-check').checked) {
-            var nombre = row.querySelectorAll('td')[1].textContent.trim();
-            pmNames.push(nombre);
-        }
+        if (row.querySelector('.pm-check').checked)
+            pmNames.push(row.querySelectorAll('td')[1].textContent.trim());
     });
-    var horas = getHoras();
-    if (pmNames.length) lines.push('• ' + pmNames.length + ' paramédico(s): ' + pmNames.join(', ') + ' (' + horas + ' hrs)');
+    if (pmNames.length)
+        lines.push('• ' + pmNames.length + ' paramédico(s): ' + pmNames.join(', ') + ' — $' + TARIFA_PM.toFixed(2) + '/hr × ' + pmNames.length + ' × ' + horas + 'h');
+
+    if (km > 0) lines.push('• Traslado de ' + km + ' km (tarifa $' + tar.toFixed(2) + '/km)');
 
     document.querySelectorAll('.ins-row').forEach(function(row) {
         if (row.querySelector('.ins-check').checked) {
@@ -913,11 +1254,10 @@ document.addEventListener('DOMContentLoaded', function () {
     if (inpKm)     inpKm.addEventListener('input', recalcularKm);
     if (inpTarifa) inpTarifa.addEventListener('input', recalcularKm);
     if (inpHoras)  inpHoras.addEventListener('input', function() {
-        actualizarSubtotalAmb();
         recalcularParamedicos();
+        recalcularTotal();
     });
 
-    // Clicks en filas de paramédico que no son el checkbox
     document.querySelectorAll('.pm-row').forEach(function(row) {
         row.querySelector('.pm-check').addEventListener('change', function() {
             row.classList.toggle('table-success', this.checked);
@@ -928,20 +1268,16 @@ document.addEventListener('DOMContentLoaded', function () {
     recalcularKm();
     recalcularParamedicos();
     recalcularInsumos();
+    recalcularTotal();
 
-    // Inicializar paginadores de tablas de selección
-    if (document.getElementById('tbody-amb')) {
+    if (document.getElementById('tbody-amb'))
         pagers.amb = TablePager({ id: 'amb', tbody: 'tbody-amb', search: 'search-amb', pager: 'pager-amb', pageSize: 8 });
-    }
-    if (document.getElementById('tbody-op')) {
-        pagers.op = TablePager({ id: 'op', tbody: 'tbody-op', search: 'search-op', pager: 'pager-op', pageSize: 8 });
-    }
-    if (document.getElementById('tabla-paramedicos')) {
-        pagers.pm = TablePager({ id: 'pm', tbody: 'tabla-paramedicos', search: 'search-pm', pager: 'pager-pm', pageSize: 8 });
-    }
-    if (document.getElementById('tbody-ins')) {
+    if (document.getElementById('tbody-op'))
+        pagers.op  = TablePager({ id: 'op',  tbody: 'tbody-op',  search: 'search-op',  pager: 'pager-op',  pageSize: 8 });
+    if (document.getElementById('tabla-paramedicos'))
+        pagers.pm  = TablePager({ id: 'pm',  tbody: 'tabla-paramedicos', search: 'search-pm', pager: 'pager-pm', pageSize: 8 });
+    if (document.getElementById('tbody-ins'))
         pagers.ins = TablePager({ id: 'ins', tbody: 'tbody-ins', search: 'search-ins', pager: 'pager-ins', pageSize: 8 });
-    }
 });
 </script>
 

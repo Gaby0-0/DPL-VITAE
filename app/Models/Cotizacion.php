@@ -17,6 +17,7 @@ class Cotizacion extends Model
         'correo',
         'tipo_servicio',
         'tipo_ambulancia_preferida',
+        'id_tipo_ambulancia',
         'descripcion',
         'fecha_requerida',
         'origen',
@@ -45,16 +46,23 @@ class Cotizacion extends Model
         'decision_cliente',
         'comentario_cliente',
         'datos_paciente',
+        'datos_evento',
         'anticipo',
         'mp_preference_id',
         'mp_payment_id',
         'mp_pago_estado',
+        'confirmacion_expires_at',
+        'requiere_oxigeno',
+        'hora_requerida',
     ];
 
     protected $casts = [
         'paramedicos_ids'      => 'array',
         'insumos_seleccionados' => 'array',
         'datos_paciente'       => 'array',
+        'datos_evento'             => 'array',
+        'confirmacion_expires_at'  => 'datetime',
+        'requiere_oxigeno'         => 'boolean',
     ];
 
     public function usuario()

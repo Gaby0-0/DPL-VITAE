@@ -11,12 +11,12 @@
         <div class="lbl">Total cotizaciones</div>
     </div>
     <div class="resumen-cell">
-        <div class="num">{{ $datos->whereIn('estado',['Aprobado','Aceptada'])->count() }}</div>
-        <div class="lbl">Aprobadas / Aceptadas</div>
+        <div class="num">{{ $datos->where('estado','Aceptada')->count() }}</div>
+        <div class="lbl">Aceptadas</div>
     </div>
     <div class="resumen-cell">
-        <div class="num">{{ $datos->where('estado','Pendiente')->count() }}</div>
-        <div class="lbl">Pendientes</div>
+        <div class="num">{{ $datos->where('estado','Cancelada')->count() }}</div>
+        <div class="lbl">Canceladas</div>
     </div>
     <div class="resumen-cell light">
         <div class="num money">${{ number_format($datos->sum('costo'), 2) }}</div>
@@ -46,7 +46,14 @@
             <td>{{ $c->telefono }}</td>
             <td>{{ $c->tipo_servicio }}</td>
             <td>{{ $c->fecha_requerida ? \Carbon\Carbon::parse($c->fecha_requerida)->format('d/m/Y') : '—' }}</td>
-            <td><span class="badge badge-{{ strtolower(str_replace(' ','',$c->estado)) }}">{{ $c->estado }}</span></td>
+            @php
+                $labelPdf = match(true) {
+                    $c->estado === 'Aceptada' && $c->decision_cliente === 'declinada'  => 'Declinada',
+                    $c->estado === 'Aceptada' && $c->decision_cliente === 'confirmada' => 'Confirmada',
+                    default => $c->estado,
+                };
+            @endphp
+            <td><span class="badge badge-{{ strtolower(str_replace([' ','é','ó'],['','e','o'],$labelPdf)) }}">{{ $labelPdf }}</span></td>
             <td class="text-right money">${{ $c->costo ? number_format($c->costo, 2) : '—' }}</td>
         </tr>
         @empty

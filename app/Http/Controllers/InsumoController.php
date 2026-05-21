@@ -38,7 +38,7 @@ class InsumoController extends Controller
         ->when($request->costo_max, function ($q, $costo) {
             $q->where('costo_unidad', '<=', $costo);
         })
-        ->paginate(8);
+        ->paginate(8)->withQueryString();
         return view('insumos.index', compact('insumos'));
     }
 

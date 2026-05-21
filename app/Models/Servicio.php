@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Evento;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -26,6 +27,8 @@ class Servicio extends Model
         'hora_salida',
         'observaciones',
         'tipo',
+        'id_cotizacion',
+        'forma_pago',
         'id_ambulancia',
         'id_cliente',
         'id_operador',
@@ -69,5 +72,15 @@ class Servicio extends Model
             'id_servicio',
             'id_insumo'
         );
+    }
+
+    public function evento()
+    {
+        return $this->hasOne(Evento::class, 'id_servicio');
+    }
+
+    public function cotizacion()
+    {
+        return $this->belongsTo(\App\Models\Cotizacion::class, 'id_cotizacion');
     }
 }

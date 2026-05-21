@@ -10,23 +10,16 @@ class EventoController extends Controller
 {
     public function index(Request $request)
     {
-        $eventos = Evento::with('servicio')
-        //duracion
-        ->when($request->duracion_min, function ($q, $duracion) {
-            $q->where('duracion', '>=', $duracion);
-        })
-        ->when($request->duracion_max, function ($q, $duracion) {
-            $q->where('duracion', '<=', $duracion);
-        })
-        //personas
-        ->when($request->personas_min, function ($q, $personas) {
-            $q->where('personas', '>=', $personas);
-        })
-        ->when($request->personas_max, function ($q, $personas) {
-            $q->where('personas', '<=', $personas);
-        })
-        ->paginate(8);
-        return view('eventos.index', compact('eventos', 'eventos'));
+        $servicios = Servicio::with(['ambulancia', 'cliente.usuario', 'operador.usuario', 'evento'])
+            ->where('tipo', 'Evento')
+            ->when($request->estado, fn($q, $v) => $q->where('estado', $v))
+            ->when($request->fecha_inicio, fn($q, $v) => $q->where('fecha_hora', '>=', $v))
+            ->when($request->fecha_fin, fn($q, $v) => $q->where('fecha_hora', '<=', $v . ' 23:59:59'))
+            ->orderByDesc('fecha_hora')
+            ->paginate(8)->withQueryString();
+
+        $estados = ['Activo' => 'Activo', 'Finalizado' => 'Finalizado', 'Cancelado' => 'Cancelado'];
+        return view('eventos.index', compact('servicios', 'estados'));
     }
 
     public function create()

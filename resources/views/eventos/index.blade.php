@@ -1,4 +1,5 @@
 <x-layouts.app :title="'Eventos'">
+
     @if(session('success'))
         <div class="alert alert-success alert-dismissible mb-4" role="alert">
             {{ session('success') }}
@@ -6,89 +7,139 @@
         </div>
     @endif
 
-<!-- Filtros -->
-<div class="card mb-4 border-0 shadow-sm" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.04), rgba(59, 130, 246, 0.04));">
-  <div class="card-body p-3">
-    <form method="GET" action="{{ url()->current() }}" class="row g-3 align-items-end">
+    {{-- Encabezado --}}
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h4 class="mb-0 fw-bold"><i class="bx bx-calendar-event me-2 text-primary"></i>Eventos</h4>
+            <small class="text-muted">Servicios de tipo Evento confirmados por clientes</small>
+        </div>
+    </div>
 
-    
-      <!-- filtro por rango de horas-->>
-       <div class="col-md-2">
-    <label class="form-label text-primary fw-bold" style="font-size: 0.8rem; text-transform: uppercase;"><i class="bx bx-time me-1"></i>Desde</label>
-    <input type="number" name="duracion_min" placeholder="Minimo de horas"
-        value="{{ request('duracion_min') }}" class="form-control border-0 shadow-sm">
-</div>
+    {{-- Filtros --}}
+    <div class="card mb-4 border-0 shadow-sm">
+        <div class="card-body p-3">
+            <form method="GET" action="{{ url()->current() }}" class="row g-3 align-items-end">
 
-        <div class="col-md-2">
-    <label class="form-label text-primary fw-bold" style="font-size: 0.8rem; text-transform: uppercase;"><i class="bx bx-time me-1"></i>Hasta</label>
-    <input type="number" name="duracion_max" placeholder="Máximo de horas"
-        value="{{ request('duracion_max') }}" class="form-control border-0 shadow-sm">
-</div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold" style="font-size:.8rem;text-transform:uppercase;">
+                        <i class="bx bx-check-circle me-1"></i>Estado
+                    </label>
+                    <select name="estado" class="form-select" onchange="this.form.submit()">
+                        <option value="">Todos los estados</option>
+                        @foreach($estados as $val => $label)
+                            <option value="{{ $val }}" {{ request('estado') == $val ? 'selected' : '' }}>
+                                {{ $label }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
-<br>
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold" style="font-size:.8rem;text-transform:uppercase;">
+                        <i class="bx bx-calendar me-1"></i>Desde
+                    </label>
+                    <input type="date" name="fecha_inicio" value="{{ request('fecha_inicio') }}" class="form-control">
+                </div>
 
-     <!-- filtro por rango de personas-->>
-<div class="col-md-2">
-    <label class="form-label text-primary fw-bold" style="font-size: 0.8rem; text-transform: uppercase;"><i class="bx bx-person me-1"></i>Desde</label>
-     <input type="number" name="personas_min" placeholder="Mínimo de personas"
-        value="{{ request('personas_min') }}" class="form-control border-0 shadow-sm">
-</div>
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold" style="font-size:.8rem;text-transform:uppercase;">
+                        <i class="bx bx-calendar me-1"></i>Hasta
+                    </label>
+                    <input type="date" name="fecha_fin" value="{{ request('fecha_fin') }}" class="form-control">
+                </div>
 
-        <div class="col-md-2">
-    <label class="form-label text-primary fw-bold" style="font-size: 0.8rem; text-transform: uppercase;"><i class="bx bx-person me-1"></i>Hasta</label>
-    <input type="number" name="personas_max" placeholder="Máximo de personas"
-        value="{{ request('personas_max') }}" class="form-control border-0 shadow-sm">
-</div>
+                <div class="col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bx bx-filter-alt me-1"></i> Filtrar
+                    </button>
+                    @if(request()->hasAny(['estado', 'fecha_inicio', 'fecha_fin']))
+                        <a href="{{ url()->current() }}" class="btn btn-outline-secondary w-100">
+                            <i class="bx bx-x me-1"></i> Limpiar
+                        </a>
+                    @endif
+                </div>
 
+            </form>
+        </div>
+    </div>
 
-</div>
-</div>
-</form>
-
-
+    {{-- Tabla --}}
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Eventos</h5>
-            <a href="{{ route('eventos.create') }}" class="btn btn-primary btn-sm">
-                <i class="bx bx-plus me-1"></i> Nuevo
-            </a>
+            <h6 class="mb-0"><i class="bx bx-list-ul me-1"></i>Servicios de Evento</h6>
+            <small class="text-muted">Total: {{ $servicios->total() }} registros</small>
         </div>
         <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
                     <tr>
                         <th>#</th>
-                        <th>Tipo</th>
-                        <th>Duración</th>
-                        <th>Personas</th>
-                        <th>Acciones</th>
+                        <th>Estado</th>
+                        <th>Fecha / Hora</th>
+                        <th>Cliente</th>
+                        <th>Ambulancia</th>
+                        <th>Operador</th>
+                        <th class="text-center">Duración</th>
+                        <th class="text-center">Personas</th>
+                        <th class="text-end">Costo</th>
+                        <th class="text-center">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($eventos as $evento)
+                    @forelse($servicios as $servicio)
                     <tr>
-                        <td>{{ $evento->id_evento }}</td>
-                        <td>{{ $evento->servicio->tipo ?? '—'}}</td>
-                        <td>{{ $evento->duracion }}</td>
-                        <td>{{ $evento->personas }}</td>
+                        <td class="fw-semibold">{{ $servicio->id_servicio }}</td>
                         <td>
-                            <a href="{{ route('eventos.show', $evento) }}" class="btn btn-sm btn-info"><i class="bx bx-show"></i></a>
-                            <a href="{{ route('eventos.edit', $evento) }}" class="btn btn-sm btn-warning"><i class="bx bx-edit"></i></a>
-                            <form action="{{ route('eventos.destroy', $evento) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar?')">
-                                @csrf @method('DELETE')
-                                <button class="btn btn-sm btn-danger"><i class="bx bx-trash"></i></button>
-                            </form>
+                            @php
+                                $badge = match($servicio->estado) {
+                                    'Activo'     => 'bg-success',
+                                    'Finalizado' => 'bg-secondary',
+                                    'Cancelado'  => 'bg-danger',
+                                    default      => 'bg-primary',
+                                };
+                            @endphp
+                            <span class="badge {{ $badge }}">{{ $servicio->estado }}</span>
+                        </td>
+                        <td>{{ \Carbon\Carbon::parse($servicio->fecha_hora)->format('d/m/Y H:i') }}</td>
+                        <td>{{ $servicio->cliente->usuario->nombre ?? '—' }}</td>
+                        <td>{{ $servicio->ambulancia->placa ?? '—' }}</td>
+                        <td>{{ $servicio->operador->usuario->nombre ?? '—' }}</td>
+                        <td class="text-center">
+                            @if($servicio->evento)
+                                {{ $servicio->evento->duracion }} h
+                            @else
+                                <span class="text-muted">—</span>
+                            @endif
+                        </td>
+                        <td class="text-center">
+                            @if($servicio->evento)
+                                {{ $servicio->evento->personas }}
+                            @else
+                                <span class="text-muted">—</span>
+                            @endif
+                        </td>
+                        <td class="text-end">${{ number_format($servicio->costo_total, 2) }}</td>
+                        <td class="text-center">
+                            <a href="{{ route('servicios.show', $servicio) }}"
+                               class="btn btn-sm btn-outline-info" title="Ver detalle">
+                                <i class="bx bx-show"></i> Ver
+                            </a>
                         </td>
                     </tr>
                     @empty
-                    <tr><td colspan="5" class="text-center text-muted py-4">Sin registros</td></tr>
+                    <tr>
+                        <td colspan="10" class="text-center text-muted py-5">
+                            <i class="bx bx-calendar-x fs-2 d-block mb-2"></i>
+                            No hay eventos registrados
+                        </td>
+                    </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-        <div class="card-footer d-flex justify-content-between align-items-center">
-            <small class="text-muted">Total: {{ $eventos->total() }} registros</small>
-            {{ $eventos->links() }}
+        <div class="card-footer">
+            {{ $servicios->links() }}
         </div>
     </div>
+
 </x-layouts.app>

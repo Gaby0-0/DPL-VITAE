@@ -178,6 +178,36 @@
                 </div>
             </div>
 
+            {{-- UBICACIÓN BASE --}}
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent d-flex align-items-center gap-3 py-3 border-bottom">
+                        <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
+                             style="width:40px;height:40px;background:#11998e;">
+                            <i class="bx bx-map-pin text-white" style="font-size:1.2rem;"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0 fw-semibold">Ubicación base</h6>
+                            <small class="text-muted">Punto de partida para calcular el costo de desplazamiento en cotizaciones</small>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <input type="hidden" name="lat_base" id="lat_base" value="{{ old('lat_base', $empresa->lat_base) }}">
+                        <input type="hidden" name="lng_base" id="lng_base" value="{{ old('lng_base', $empresa->lng_base) }}">
+                        <div id="map-base" style="height:300px;border-radius:10px;border:1px solid #dee2e6;overflow:hidden;" class="mb-2"></div>
+                        <input type="text" id="dir_base" class="form-control mt-2" readonly
+                               placeholder="Marca en el mapa para guardar la ubicación"
+                               value="{{ old('lat_base', $empresa->lat_base) ? ($empresa->direccion ?? '') : '' }}">
+                        <small class="text-muted"><i class="bx bx-info-circle me-1"></i>Haz clic en el mapa o arrastra el marcador para ajustar la ubicación base.</small>
+                        @if($empresa->lat_base && $empresa->lng_base)
+                        <div class="mt-2">
+                            <span class="badge bg-label-success"><i class="bx bx-check me-1"></i>Ubicación guardada: {{ $empresa->lat_base }}, {{ $empresa->lng_base }}</span>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
             {{-- FILOSOFÍA INSTITUCIONAL --}}
             <div class="col-12">
                 <div class="card border-0 shadow-sm">
@@ -300,6 +330,50 @@
 
     </form>
 
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+    (function () {
+        var latSaved = {{ $empresa->lat_base ?? 17.0669 }};
+        var lngSaved = {{ $empresa->lng_base ?? -96.7203 }};
+        var zoom     = {{ $empresa->lat_base ? 15 : 13 }};
+
+        var map    = L.map('map-base').setView([latSaved, lngSaved], zoom);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        var marker = L.marker([latSaved, lngSaved], { draggable: true }).addTo(map);
+
+        function setBase(lat, lng) {
+            document.getElementById('lat_base').value = lat.toFixed(7);
+            document.getElementById('lng_base').value = lng.toFixed(7);
+            fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat='+lat+'&lon='+lng,
+                  { headers: { 'Accept-Language': 'es' } })
+            .then(r => r.json())
+            .then(d => { if (d && d.display_name) document.getElementById('dir_base').value = d.display_name; })
+            .catch(() => {});
+        }
+
+        marker.on('dragend', function(e) {
+            var p = e.target.getLatLng();
+            setBase(p.lat, p.lng);
+        });
+        map.on('click', function(e) {
+            marker.setLatLng(e.latlng);
+            setBase(e.latlng.lat, e.latlng.lng);
+        });
+
+        // Si ya hay ubicación guardada, hacer geocode para mostrar dirección
+        @if($empresa->lat_base && $empresa->lng_base)
+        fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat={{ $empresa->lat_base }}&lon={{ $empresa->lng_base }}',
+              { headers: { 'Accept-Language': 'es' } })
+        .then(r => r.json())
+        .then(d => { if (d && d.display_name) document.getElementById('dir_base').value = d.display_name; })
+        .catch(() => {});
+        @endif
+    })();
+    </script>
     <script>
     (function () {
         var display = document.getElementById('telefono-display');

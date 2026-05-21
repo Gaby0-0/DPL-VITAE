@@ -27,8 +27,6 @@
                         </dd>
                         <dt class="col-sm-5">Email</dt>
                         <dd class="col-sm-7">{{ $operador->usuario->email ?? '—' }}</dd>
-                        <dt class="col-sm-5">Salario/Hora</dt>
-                        <dd class="col-sm-7">${{ number_format($operador->salario_hora, 2) }}</dd>
                     </dl>
                 </div>
             </div>

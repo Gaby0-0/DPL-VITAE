@@ -269,7 +269,7 @@ const CONFIGS = {
         filtros: [
             { name:'fecha_inicio',  label:'Fecha inicio',  type:'date' },
             { name:'fecha_fin',     label:'Fecha fin',     type:'date' },
-            { name:'estado',        label:'Estado',        type:'select', opciones:['Todos','Pendiente','Aceptada','Aprobado','Rechazada'] },
+            { name:'estado',        label:'Estado',        type:'select', opciones:['Todos','Pendiente','En revisión','Aceptada','Cancelada'] },
             { name:'tipo_servicio', label:'Tipo servicio', type:'select', opciones:['Todos','Traslado','Evento'] },
         ]
     },

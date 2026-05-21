@@ -46,7 +46,7 @@ class AmbulanciaController extends Controller
         ->when($request->tipo, function ($q, $tipo) {
             $q->where('id_tipo_ambulancia', $tipo);
         })
-        ->paginate(8);
+        ->paginate(8)->withQueryString();
         return view('ambulancias.index', compact('ambulancias', 'tipos'));
     }
 

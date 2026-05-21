@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Paramedico;
+use App\Models\Empresa;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -59,9 +60,6 @@ class ParamedicoController extends Controller
             'password.min'          => 'La contraseña debe tener al menos 8 caracteres.',
             'password.confirmed'    => 'Las contraseñas no coinciden.',
 
-            'salario_hora.required' => 'El salario por hora es obligatorio.',
-            'salario_hora.numeric'  => 'El salario debe ser un número.',
-            'salario_hora.min'      => 'El salario no puede ser negativo.',
         ];
     }
 
@@ -69,15 +67,20 @@ class ParamedicoController extends Controller
     public function index(Request $request)
     {
         $paramedicos = Paramedico::with('usuario')
-                        // filtro por rango de salario
-        ->when($request->salario_min, function ($q, $salario_min) {
-            $q->where('salario_hora', '>=', $salario_min);
-        })
-        ->when($request->salario_max, function ($q, $salario_max) {
-            $q->where('salario_hora', '<=', $salario_max);
-        })
-        ->paginate(8);
-        return view('paramedicos.index', compact('paramedicos'));
+            ->when($request->filled('activo'), function ($q) use ($request) {
+                $q->whereHas('usuario', fn($u) => $u->where('activo', (bool) $request->activo));
+            })
+            ->paginate(8);
+
+        $empresa = Empresa::first();
+        return view('paramedicos.index', compact('paramedicos', 'empresa'));
+    }
+
+    public function updateTarifa(Request $request)
+    {
+        $request->validate(['tarifa_paramedico' => 'required|numeric|min:0']);
+        Empresa::first()->update(['tarifa_paramedico' => $request->tarifa_paramedico]);
+        return back()->with('success', 'Tarifa de paramédicos actualizada.');
     }
 
     public function create()
@@ -91,9 +94,8 @@ class ParamedicoController extends Controller
 
         $request->validate(
             array_merge($this->rulesPersonales(), [
-                'email'        => ['required', 'email', 'max:150', 'unique:users,email'],
-                'password'     => ['required', 'string', 'min:8', 'confirmed'],
-                'salario_hora' => ['required', 'numeric', 'min:0'],
+                'email'    => ['required', 'email', 'max:150', 'unique:users,email'],
+                'password' => ['required', 'string', 'min:8', 'confirmed'],
             ]),
             array_merge($this->messagesPersonales(), $this->messagesAcceso())
         );
@@ -105,11 +107,12 @@ class ParamedicoController extends Controller
                 'ap_materno' => $request->ap_materno,
                 'email'      => $request->email,
                 'password'   => Hash::make($request->password),
+                'activo'     => true,
             ]);
 
             Paramedico::create([
                 'id_usuario'   => $user->id_usuario,
-                'salario_hora' => $request->salario_hora,
+                'salario_hora' => 0,
             ]);
         });
 
@@ -134,9 +137,8 @@ class ParamedicoController extends Controller
 
         $request->validate(
             array_merge($this->rulesPersonales(), [
-                'email'        => ['required', 'email', 'max:150', 'unique:users,email,' . $paramedico->id_usuario . ',id_usuario'],
-                'password'     => ['nullable', 'string', 'min:8', 'confirmed'],
-                'salario_hora' => ['required', 'numeric', 'min:0'],
+                'email'    => ['required', 'email', 'max:150', 'unique:users,email,' . $paramedico->id_usuario . ',id_usuario'],
+                'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             ]),
             array_merge($this->messagesPersonales(), $this->messagesAcceso())
         );
@@ -153,10 +155,17 @@ class ParamedicoController extends Controller
             }
 
             $paramedico->usuario->update($userData);
-            $paramedico->update(['salario_hora' => $request->salario_hora]);
         });
 
         return redirect()->route('paramedicos.index')->with('success', 'Paramédico actualizado correctamente.');
+    }
+
+    public function toggleActivo(Paramedico $paramedico)
+    {
+        $user = $paramedico->usuario;
+        $user->update(['activo' => !$user->activo]);
+        $msg = $user->activo ? 'Paramédico activado correctamente.' : 'Paramédico desactivado correctamente.';
+        return back()->with('success', $msg);
     }
 
     public function destroy(Paramedico $paramedico)

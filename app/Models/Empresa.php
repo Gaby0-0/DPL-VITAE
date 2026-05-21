@@ -28,5 +28,9 @@ class Empresa extends Model
         'sitio_web',
         'direccion',
         'costo_km',
+        'lat_base',
+        'lng_base',
+        'tarifa_operador',
+        'tarifa_paramedico',
     ];
 }

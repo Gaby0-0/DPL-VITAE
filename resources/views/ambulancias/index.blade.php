@@ -9,19 +9,16 @@
 @vite('resources/css/filtros.css')
 <div class="card filtro-card mb-4 border-0 shadow-sm">
   <div class="card-body p-3">
-    <form method="GET" action="{{ url()->current() }}"class="filtro-form">
+    <form method="GET" action="{{ url()->current() }}" class="filtro-form">
 
-    <select name="estado" class="form-select filtro-label">
+    <select name="estado" class="form-select filtro-label" onchange="this.form.submit()">
         <option value="">Todos</option>
-        <option value="Disponible" {{ request('estado') == 'Disponible' ? 'selected' : '' }}>
-            Disponible
-        </option>
-        <option value="No disponible" {{ request('estado') == 'No disponible' ? 'selected' : '' }}>
-            No disponible
-        </option>
+        <option value="Disponible" {{ request('estado') == 'Disponible' ? 'selected' : '' }}>Disponible</option>
+        <option value="En servicio" {{ request('estado') == 'En servicio' ? 'selected' : '' }}>En servicio</option>
+        <option value="En mantenimiento" {{ request('estado') == 'En mantenimiento' ? 'selected' : '' }}>En mantenimiento</option>
     </select>
 
-    <select name="tipo" class="form-select filtro-label">
+    <select name="tipo" class="form-select filtro-label" onchange="this.form.submit()">
         <option value="">Todos los tipos</option>
         @foreach ($tipos as $tipo)
             <option value="{{ $tipo->id_tipo_ambulancia }}"
@@ -31,9 +28,9 @@
         @endforeach
     </select>
 
+    </form>
+  </div>
 </div>
-</div>
-</form>
 
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">

@@ -78,6 +78,38 @@
                         </select>
                         @error('id_operador')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Forma de pago</label>
+                        <select name="forma_pago" class="form-select @error('forma_pago') is-invalid @enderror">
+                            <option value="">-- Sin especificar (efectivo) --</option>
+                            <option value="efectivo" {{ old('forma_pago', $servicio->forma_pago) === 'efectivo' ? 'selected' : '' }}>Efectivo</option>
+                            <option value="online"   {{ old('forma_pago', $servicio->forma_pago) === 'online'   ? 'selected' : '' }}>Pago en línea</option>
+                        </select>
+                        @error('forma_pago')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    @php
+                        $asignados = old('paramedicos_ids', $servicio->paramedicos->pluck('id_usuario')->toArray());
+                    @endphp
+                    <div class="col-12">
+                        <label class="form-label">Paramédicos</label>
+                        <div class="border rounded p-3 @error('paramedicos_ids') border-danger @enderror" style="max-height:180px;overflow-y:auto;">
+                            @forelse($paramedicos as $paramedico)
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox"
+                                       name="paramedicos_ids[]"
+                                       value="{{ $paramedico->id_usuario }}"
+                                       id="pm_{{ $paramedico->id_usuario }}"
+                                       {{ in_array($paramedico->id_usuario, $asignados) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="pm_{{ $paramedico->id_usuario }}">
+                                    {{ $paramedico->usuario->nombre ?? '—' }} {{ $paramedico->usuario->ap_paterno ?? '' }}
+                                </label>
+                            </div>
+                            @empty
+                            <span class="text-muted small">No hay paramédicos registrados.</span>
+                            @endforelse
+                        </div>
+                        @error('paramedicos_ids')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                    </div>
                     <div class="col-12">
                         <label class="form-label">Observaciones</label>
                         <textarea name="observaciones" class="form-control @error('observaciones') is-invalid @enderror" rows="3">{{ old('observaciones', $servicio->observaciones) }}</textarea>

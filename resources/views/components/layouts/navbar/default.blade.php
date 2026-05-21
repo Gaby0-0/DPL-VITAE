@@ -2,7 +2,14 @@
     $user        = auth()->user()?->loadMissing(['operador','paramedico','cliente']);
     $esEmpleado  = $user && $user->esEmpleado();
     $iniciales   = $user ? strtoupper(mb_substr($user->nombre,0,1)).strtoupper(mb_substr($user->ap_paterno,0,1)) : '';
-    $ambulancias = ($user && $user->operador) ? $user->operador->ambulancias : collect();
+    $ambulancias = ($user && $user->operador)
+        ? \App\Models\Servicio::where('id_operador', $user->operador->id_usuario)
+            ->where('estado', 'Activo')
+            ->with('ambulancia')
+            ->get()
+            ->pluck('ambulancia')
+            ->filter()
+        : collect();
 @endphp
 
 <nav
@@ -33,15 +40,92 @@
     @else
     {{-- buscador solo para admin --}}
     <div class="navbar-nav align-items-center me-auto">
-      <div class="nav-item d-flex align-items-center">
+      <div class="nav-item d-flex align-items-center position-relative" id="busqueda-global">
         <span class="w-px-22 h-px-22"><i class="icon-base bx bx-search icon-md"></i></span>
         <input
           type="text"
+          id="navbar-busqueda"
           class="form-control border-0 shadow-none ps-1 ps-sm-2 d-md-block d-none"
-          placeholder="Search..."
-          aria-label="Search..." />
+          placeholder="Buscar..."
+          aria-label="Buscar..."
+          autocomplete="off" />
+        <div id="busqueda-dropdown"
+             class="d-none position-absolute bg-white border shadow-lg rounded-2"
+             style="top:calc(100% + 8px);left:0;min-width:320px;max-width:420px;z-index:9999;max-height:420px;overflow-y:auto;">
+        </div>
       </div>
     </div>
+    <style>
+      .busqueda-item:hover { background:#f0f0ff; }
+      .busqueda-grupo-header { font-size:.68rem; text-transform:uppercase; letter-spacing:.07em; font-weight:700; color:#8592a3; background:#f8f8ff; padding:.35rem .85rem; }
+    </style>
+    <script>
+    (function () {
+      document.addEventListener('DOMContentLoaded', function () {
+        var input    = document.getElementById('navbar-busqueda');
+        var dropdown = document.getElementById('busqueda-dropdown');
+        var wrap     = document.getElementById('busqueda-global');
+        if (!input || !dropdown) return;
+
+        var timer = null;
+
+        function cerrar() {
+          dropdown.classList.add('d-none');
+          dropdown.innerHTML = '';
+        }
+
+        function renderResultados(data) {
+          if (!data.length) {
+            dropdown.innerHTML = '<div class="p-3 text-muted small text-center">Sin resultados</div>';
+            dropdown.classList.remove('d-none');
+            return;
+          }
+          var grupos = {};
+          data.forEach(function (r) {
+            if (!grupos[r.grupo]) grupos[r.grupo] = [];
+            grupos[r.grupo].push(r);
+          });
+          var html = '';
+          Object.keys(grupos).forEach(function (grupo) {
+            html += '<div class="busqueda-grupo-header">' + grupo + '</div>';
+            grupos[grupo].forEach(function (r) {
+              html += '<a href="' + r.url + '" class="d-flex align-items-center gap-2 px-3 py-2 text-decoration-none text-dark busqueda-item">'
+                    + '<i class="bx ' + r.icono + ' text-primary" style="font-size:1.1rem;flex-shrink:0;"></i>'
+                    + '<div style="min-width:0;">'
+                    + '<div class="fw-semibold text-truncate" style="font-size:.84rem;">' + r.label + '</div>'
+                    + (r.sub ? '<div class="text-muted text-truncate" style="font-size:.74rem;">' + r.sub + '</div>' : '')
+                    + '</div>'
+                    + '</a>';
+            });
+          });
+          dropdown.innerHTML = html;
+          dropdown.classList.remove('d-none');
+        }
+
+        input.addEventListener('input', function () {
+          clearTimeout(timer);
+          var q = input.value.trim();
+          if (q.length < 2) { cerrar(); return; }
+          timer = setTimeout(function () {
+            fetch('/buscar?q=' + encodeURIComponent(q), {
+              headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(function (r) { return r.json(); })
+            .then(renderResultados)
+            .catch(cerrar);
+          }, 300);
+        });
+
+        document.addEventListener('click', function (e) {
+          if (!wrap.contains(e.target)) cerrar();
+        });
+
+        input.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape') { cerrar(); input.blur(); }
+        });
+      });
+    })();
+    </script>
     @endif
 
     <ul class="navbar-nav flex-row align-items-center ms-auto gap-1">

@@ -99,8 +99,8 @@
 
     <li class="menu-item {{ request()->is('clientes*') ? 'active' : '' }}">
       <a class="menu-link" href="{{ route('clientes.index') }}" wire:navigate>
-        <i class="menu-icon tf-icons bx bx-group"></i>
-        <div class="text-truncate">Clientes</div>
+        <i class="menu-icon tf-icons bx bx-user-check"></i>
+        <div class="text-truncate">Usuarios</div>
       </a>
     </li>
 

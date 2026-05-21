@@ -49,12 +49,20 @@
 </nav>
 
 @php
-    $colorEstado = match($cotizacion->estado) {
-        'Pendiente'   => 'warning',
-        'En revisión' => 'info',
-        'Aceptada'    => 'success',
-        'Cancelada'   => 'danger',
-        default       => 'secondary',
+    $estadoDisplay = match(true) {
+        $cotizacion->estado === 'Aceptada' && $cotizacion->decision_cliente === 'declinada'  => 'Declinada por ti',
+        $cotizacion->estado === 'Aceptada' && $cotizacion->decision_cliente === 'confirmada' => 'Confirmada',
+        default => $cotizacion->estado,
+    };
+
+    $colorEstado = match(true) {
+        $cotizacion->estado === 'Aceptada' && $cotizacion->decision_cliente === 'declinada'  => 'danger',
+        $cotizacion->estado === 'Aceptada' && $cotizacion->decision_cliente === 'confirmada' => 'success',
+        $cotizacion->estado === 'Pendiente'   => 'warning',
+        $cotizacion->estado === 'En revisión' => 'info',
+        $cotizacion->estado === 'Aceptada'    => 'success',
+        $cotizacion->estado === 'Cancelada'   => 'danger',
+        default => 'secondary',
     };
 
     $etapas = [
@@ -63,7 +71,12 @@
         ['label' => 'Propuesta recibida',   'estados' => ['Aceptada']],
     ];
 
-    $puedeDecidirCliente = $cotizacion->estado === 'Aceptada' && $cotizacion->decision_cliente === null;
+    $anticipoPagado      = $cotizacion->anticipo <= 0 || $cotizacion->mp_pago_estado === 'approved';
+    $expirada            = $cotizacion->confirmacion_expires_at && $cotizacion->confirmacion_expires_at->isPast();
+    $puedeDecidirCliente = $cotizacion->estado === 'Aceptada'
+                        && $cotizacion->decision_cliente === null
+                        && $anticipoPagado
+                        && !$expirada;
 @endphp
 
 <section class="py-5">
@@ -84,7 +97,7 @@
                 <h2 class="fw-bold mb-1">{{ $cotizacion->numero_guia }}</h2>
                 <span class="text-muted small">Enviada el {{ $cotizacion->created_at->format('d/m/Y H:i') }}</span>
             </div>
-            <span class="badge bg-{{ $colorEstado }} fs-6 px-3 py-2">{{ $cotizacion->estado }}</span>
+            <span class="badge bg-{{ $colorEstado }} fs-6 px-3 py-2">{{ $estadoDisplay }}</span>
         </div>
 
         {{-- timeline --}}
@@ -131,6 +144,7 @@
                     @endif
                 </div>
             </div>
+                  
 
             @if($cotizacion->estado === 'Aceptada')
             <div class="timeline-step" style="padding-bottom:0">
@@ -161,6 +175,7 @@
         {{-- datos de la solicitud --}}
         <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
             <h6 class="fw-semibold mb-3">Datos de tu solicitud</h6>
+            <h6 class="fw-semibold mb-3">   </h6>
             <dl class="row small mb-0">
                 <dt class="col-5 text-muted">Tipo de servicio</dt>
                 <dd class="col-7">{{ $cotizacion->tipo_servicio }}</dd>
@@ -242,6 +257,39 @@
             </div>
             @endif
         </div>
+
+        {{-- tiempo restante para confirmar --}}
+        @if($cotizacion->estado === 'Aceptada' && $cotizacion->decision_cliente === null && $cotizacion->confirmacion_expires_at)
+        @if($expirada)
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 border-start border-4 border-danger">
+            <h6 class="fw-semibold text-danger mb-1"><i class="bx bx-time-five me-1"></i>Tiempo de reserva expirado</h6>
+            <p class="text-muted small mb-0">El plazo de 24 horas para confirmar esta propuesta ha vencido. Contáctanos si deseas reagendar el servicio.</p>
+        </div>
+        @else
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 border-start border-4 border-warning">
+            <h6 class="fw-semibold mb-1"><i class="bx bx-time-five me-1 text-warning"></i>Recursos apartados para ti</h6>
+            <p class="text-muted small mb-2">La ambulancia, operador y paramédicos asignados están reservados mientras tomas tu decisión. Tiempo restante:</p>
+            <div id="countdown" class="fw-bold fs-5 text-warning">—</div>
+            <small class="text-muted">Vence el {{ $cotizacion->confirmacion_expires_at->format('d/m/Y \a \l\a\s H:i') }} hrs</small>
+        </div>
+        <script>
+        (function() {
+            var expires = new Date("{{ $cotizacion->confirmacion_expires_at->toIso8601String() }}");
+            function tick() {
+                var diff = Math.max(0, expires - Date.now());
+                var h = Math.floor(diff / 3600000);
+                var m = Math.floor((diff % 3600000) / 60000);
+                var s = Math.floor((diff % 60000) / 1000);
+                document.getElementById('countdown').textContent =
+                    h + 'h ' + String(m).padStart(2,'0') + 'm ' + String(s).padStart(2,'0') + 's';
+                if (diff > 0) setTimeout(tick, 1000);
+                else location.reload();
+            }
+            tick();
+        })();
+        </script>
+        @endif
+        @endif
 
         {{-- anticipo --}}
         @if($cotizacion->estado === 'Aceptada' && $cotizacion->anticipo > 0)
@@ -350,6 +398,50 @@
                         <label class="form-label fw-semibold">Médico tratante</label>
                         <input type="text" name="paciente_medico" class="form-control"
                             value="{{ old('paciente_medico') }}" placeholder="Nombre del médico responsable (opcional)">
+                    </div>
+                </div>
+                <hr class="my-3">
+                @elseif($cotizacion->tipo_servicio === 'Evento')
+                <div class="alert alert-info small mb-4">
+                    <i class="bx bx-calendar-event me-1"></i>
+                    <strong>Datos del evento</strong> — necesitamos estos datos para coordinar la cobertura médica durante tu evento.
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Nombre del evento <span class="text-danger">*</span></label>
+                        <input type="text" name="evento_nombre" class="form-control @error('evento_nombre') is-invalid @enderror"
+                            value="{{ old('evento_nombre') }}" placeholder="Ej. Boda de Juan y María">
+                        @error('evento_nombre')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Tipo de evento <span class="text-danger">*</span></label>
+                        <input type="text" name="evento_tipo" class="form-control @error('evento_tipo') is-invalid @enderror"
+                            value="{{ old('evento_tipo') }}" placeholder="Ej. Boda, Concierto, Conferencia, Deportivo…">
+                        @error('evento_tipo')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Número de asistentes esperados <span class="text-danger">*</span></label>
+                        <input type="number" name="evento_personas" min="1"
+                            class="form-control @error('evento_personas') is-invalid @enderror"
+                            value="{{ old('evento_personas', $cotizacion->personas) }}">
+                        @error('evento_personas')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Nombre del responsable <span class="text-danger">*</span></label>
+                        <input type="text" name="evento_responsable" class="form-control @error('evento_responsable') is-invalid @enderror"
+                            value="{{ old('evento_responsable', $cotizacion->nombre) }}" placeholder="Persona de contacto en el evento">
+                        @error('evento_responsable')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Teléfono del responsable</label>
+                        <input type="text" name="evento_tel_responsable" class="form-control"
+                            value="{{ old('evento_tel_responsable', $cotizacion->telefono) }}" placeholder="Número de contacto durante el evento">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Indicaciones especiales</label>
+                        <textarea name="evento_indicaciones" rows="3" class="form-control"
+                            placeholder="Acceso al lugar, restricciones, puntos de atención, etc. (opcional)">{{ old('evento_indicaciones') }}</textarea>
                     </div>
                 </div>
                 <hr class="my-3">

@@ -15,8 +15,6 @@
                 <dd class="col-sm-8">{{ $paramedico->usuario->nombre ?? '—' }}</dd>
                 <dt class="col-sm-4">Email</dt>
                 <dd class="col-sm-8">{{ $paramedico->usuario->email ?? '—' }}</dd>
-                <dt class="col-sm-4">Salario/Hora</dt>
-                <dd class="col-sm-8">${{ number_format($paramedico->salario_hora, 2) }}</dd>
             </dl>
         </div>
     </div>

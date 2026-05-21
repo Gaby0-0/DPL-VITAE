@@ -36,6 +36,8 @@ class EmpresaController extends Controller
             'sitio_web'   => 'nullable|string|max:200',
             'direccion'   => 'nullable|string',
             'costo_km'    => 'nullable|numeric|min:0',
+            'lat_base'    => 'nullable|numeric|between:-90,90',
+            'lng_base'    => 'nullable|numeric|between:-180,180',
             'logo'        => 'nullable|image|max:2048',
             'imagen'      => 'nullable|image|max:4096',
         ], [
@@ -78,6 +80,8 @@ class EmpresaController extends Controller
             'sitio_web'   => 'nullable|string|max:200',
             'direccion'   => 'nullable|string',
             'costo_km'    => 'nullable|numeric|min:0',
+            'lat_base'    => 'nullable|numeric|between:-90,90',
+            'lng_base'    => 'nullable|numeric|between:-180,180',
             'logo'        => 'nullable|image|max:2048',
             'imagen'      => 'nullable|image|max:4096',
         ], [
