@@ -31,8 +31,8 @@ new #[Layout('components.layouts.auth')] class extends Component {
 @endsection
 
 <div>
-    <h4 class="mb-1">{{ __('Forgot Password?') }} 🔒</h4>
-    <p class="mb-6">{{ __('Enter your email and we\'ll send you instructions to reset your password') }}</p>
+    <h4 class="mb-1">{{ __('¿Contraseña olvidada?') }} </h4>
+    <p class="mb-6">{{ __('Ingrese su correo y se le enviaran indicaciones para reestablcerla') }}</p>
 
     <!-- Session Status -->
     @if (session('status'))
@@ -43,7 +43,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
     <form wire:submit="sendPasswordResetLink" class="mb-6">
         <div class="mb-6">
-            <label for="email" class="form-label">{{ __('Email') }}</label>
+            <label for="email" class="form-label">{{ __('Correo') }}</label>
             <input
                 wire:model="email"
                 type="email"
@@ -52,7 +52,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
                 required
                 autofocus
                 autocomplete="email"
-                placeholder="{{ __('Enter your email') }}"
+                placeholder="{{ __('Ingrese su correo') }}"
             >
             @error('email')
                 <div class="invalid-feedback">{{ $message }}</div>
@@ -60,14 +60,14 @@ new #[Layout('components.layouts.auth')] class extends Component {
         </div>
 
         <button type="submit" class="btn btn-primary d-grid w-100 mb-6">
-            {{ __('Send Reset Link') }}
+            {{ __('Enviar enlace de restablecimiento') }}
         </button>
     </form>
 
     <div class="text-center">
         <a href="{{ route('login') }}" class="d-flex justify-content-center" wire:navigate>
             <i class="bx bx-chevron-left scaleX-n1-rtl me-1"></i>
-            {{ __('Back to login') }}
+            {{ __('Regresar al inicio de sesión') }}
         </a>
     </div>
 </div>

@@ -68,7 +68,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
 @endsection
 
 <div>
-    <h4 class="mb-1">{{ __('Reset Password') }} 🔑</h4>
+    <h4 class="mb-1">{{ __('Restablecer contraseña') }} x</h4>
     <p class="mb-6">{{ __('Your new password must be different from previously used passwords') }}</p>
 
     <!-- Session Status -->
